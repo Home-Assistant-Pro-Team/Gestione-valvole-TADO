@@ -1,0 +1,11 @@
+  type: custom:button-card
+  template: card_valvole
+  name: Cucina
+  entity: climate.valvola_cucina
+  show_icon: false
+  triggers_update: all
+  variables:
+    stanza: cucina
+    temperatura_ambinete: sensor.temperatura_cucina
+    umidita: sensor.umidita_cucina
+    contatto_finestra: binary_sensor.finestra_cucina_contact
