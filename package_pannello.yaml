@@ -1,0 +1,133 @@
+################################################################################
+##                  Meter
+################################################
+utility_meter:
+  meter_termostato_anno:
+    source: sensor.durata_riscaldamento_generale
+    cycle: yearly
+  meter_termostato_mese:
+    source: sensor.durata_riscaldamento_generale
+    cycle: monthly
+  meter_termostato_oggi:
+    source: sensor.durata_riscaldamento_generale
+    cycle: daily
+
+################################################################################
+##                  input_boolean
+################################################
+input_boolean:
+  avvisi_generale_ricircolo_aria:
+    name: Avvisi Ricircola aria
+    icon: mdi:volume-source
+
+
+template:
+################################################################################
+##                  Sensor
+################################################
+  - binary_sensor:
+      - name: "Riscaldamento Generale"
+        state: >
+          {{ ((states.climate)
+              | selectattr('entity_id','search','valvola')
+              | selectattr('attributes.hvac_action', 'eq', 'heating')
+              | rejectattr('entity_id','search','homekit')
+              | map(attribute='entity_id')
+              | list
+              | count > 0)
+          }}
+
+  - sensor:
+      - name: "Durata riscaldamento generale"
+        unique_id: durata_riscaldamento_generale
+        state: >-
+          {%if is_state('binary_sensor.riscaldamento_generale', 'on') and (as_timestamp(states.binary_sensor.riscaldamento_generale.last_changed)) <= as_timestamp(now())%}
+            {{((as_timestamp(now()) - as_timestamp(states.binary_sensor.riscaldamento_generale.last_changed))/3600) }}
+          {% else %}
+            0
+          {% endif %}
+        attributes:
+          Oggi: >
+            {% from 'history_stats.jinja' import history %}
+            {{ history(states('sensor.meter_termostato_oggi')) }}
+          Mese: >-
+            {% from 'history_stats.jinja' import history %}
+            {{ history(states('sensor.meter_termostato_mese')) }}
+          Anno: >-
+            {% from 'history_stats.jinja' import history %}
+            {{ history(states('sensor.meter_termostato_anno')) }}
+
+
+      - name: "Numero Valvole Accese"
+        unique_id: numero_valvole_accese
+        state: >-
+          {{ ((states.climate)
+            | selectattr('entity_id','search','valvola')
+            | selectattr('attributes.hvac_action', 'eq', 'heating')
+            | rejectattr('entity_id','search','homekit')
+            | map(attribute='entity_id')
+            | list
+            | count ) }}
+
+################################################################################
+##                  Script
+###################################################
+script:
+  temperatura_up:
+    sequence:
+    - service: climate.set_temperature
+      data:
+        temperature: >
+          {{ state_attr(climate_id, 'temperature') + 0.5 | float }}
+      target:
+        entity_id: "{{ climate_id }}"
+
+  temperatura_down:
+    sequence:
+      - service: climate.set_temperature
+        data:
+          temperature: >
+            {{ state_attr(climate_id, 'temperature') - 0.5 | float }}
+        target:
+          entity_id: "{{ climate_id }}"
+
+  away:
+    sequence:
+      - service: climate.set_preset_mode
+        data:
+          preset_mode: "away"
+        target:
+          entity_id: >
+            {{(states.climate)
+              | selectattr('entity_id','search','valvola')
+              | rejectattr('entity_id','search','homekit')
+              | map(attribute='entity_id')
+              | list
+              | first }}
+
+  preset_mode:
+    sequence:
+      - service: climate.set_preset_mode
+        data:
+          preset_mode: "home"
+        target:
+          entity_id: >
+            {{(states.climate)
+              | selectattr('entity_id','search','valvola')
+              | rejectattr('entity_id','search','homekit')
+              | map(attribute='entity_id')
+              | list
+              | first }}
+
+  power_off_valvole:
+    sequence:
+      - service: climate.set_hvac_mode
+        data:
+          hvac_mode: "off"
+        target:
+          entity_id: >-
+            {{ (states.climate)
+                | selectattr('entity_id','search','valvola')
+                | selectattr('entity_id','search','homekit')
+                | map(attribute='entity_id')
+                | list }}
