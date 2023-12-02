@@ -1,0 +1,362 @@
+  type: custom:button-card
+  name: Generale
+  entity: climate.valvola_cameretta
+  show_icon: false
+  triggers_update: all
+  variables:
+    termostato: climate.valvola_cameretta
+  styles:
+    card:
+      - height: 200px
+    name:
+      - padding-left: 30px
+      - padding-bottom: 600px
+      - font-size: 24px
+      - font-weight: 500
+    custom_fields:
+      quadrato:
+        - position: absolute
+        - left: 15px
+        - top: 13%
+      valvole_accese:
+        - position: absolute
+        - left: 48px
+        - top: 2%
+        - height: 90px
+        - width: 90px
+        - border-radius: 20%
+        - border: 3px solid
+        - background-color: "#181818"
+
+      accensione_al_rientro:
+        - position: absolute
+        - left: 250px
+        - top: 45px
+      accensione_al_rientro_icona:
+        - position: absolute
+        - left: 258px
+        - top: 49px
+
+      alert_riscaldamenti_accesi:
+        - position: absolute
+        - left: 250px
+        - top: 83px
+      alert_riscaldamenti_accesi_icona:
+        - position: absolute
+        - left: 258px
+        - top: 87px
+
+      avvisi:
+        - position: absolute
+        - left: 250px
+        - top: 121px
+      avvisi_icona:
+        - position: absolute
+        - left: 255px
+        - top: 125px
+
+      away_button:
+        - position: absolute
+        - left: 169px
+        - top: 45px
+      preset_mode_button:
+        - position: absolute
+        - left: 169px
+        - top: 83px
+      spegni_tutto_button:
+        - position: absolute
+        - left: 169px
+        - top: 121px
+
+  custom_fields:
+    quadrato:
+      card:
+        type: custom:button-card
+        template: no_background
+        show_name: true
+        show_state: false
+        show_label: true
+        label: "Funzionamento generale"
+        name: "[[[ return states['sensor.durata_riscaldamento_generale'].attributes.Oggi ]]]"
+        styles:
+          card:
+            - height: 150px
+            - width: 155px
+            - background: "white"
+            - border: "3px solid"
+            - border-color: "gray"
+            - border-radius: 15%
+          name:
+            - font-size: 35px
+            - font-weight: bold
+            - color: "black"
+            - padding-top: 110px
+          label:
+            - font-size: 12px
+            - font-weight: bold
+            - color: "black"
+
+    valvole_accese:
+      card:
+        type: custom:button-card
+        template: no_background
+        icon: mdi:radiator
+        show_name: true
+        show_state: false
+        name: "[[[ return states['sensor.numero_valvole_accese'].state ]]]"
+        styles:
+          card:
+            - padding-top: 10px
+          name:
+            - font-size: 30px
+
+    accensione_al_rientro:
+      card:
+        type: custom:button-card
+        entity: automation.accensione_termosifoni_al_rientro
+        label: Accensione rientro
+        show_name: false
+        show_label: true
+        show_icon: false
+        styles:
+          card:
+            - height: 35px
+            - width: 240px
+            - background-color: "#181818"
+            - border-top: 2px solid
+            - border-left: 2px solid
+            - border-bottom: 2px solid
+            - border-top-right-radius: 0px
+            - border-bottom-right-radius: 0px
+            - border-top-left-radius: 10px
+            - border-bottom-left-radius: 10px
+            - border-color: gray
+          label:
+            - font-size: 15px
+            - font-weight: bold
+            - padding-right: 33px
+    accensione_al_rientro_icona:
+      card:
+        type: custom:button-card
+        template: no_background
+        entity: automation.accensione_termosifoni_al_rientro
+        icon: mdi:radiator-off
+        show_name: false
+        show_label: false
+        show_icon: true
+        size: 100%
+        styles:
+          card:
+            - height: 25px
+            - width: 25px
+          grid:
+            - grid-template-columns: 1fr
+        state:
+          - value: 'on'
+            icon: mdi:home-import-outline
+            color: "DarkOrange"
+          - value: 'off'
+            icon: mdi:home-off-outline
+
+
+    alert_riscaldamenti_accesi:
+      card:
+        type: custom:button-card
+        entity: automation.avviso_riscaldamento_acceso
+        label: Alert riscaldamenti accesi
+        show_name: false
+        show_label: true
+        show_icon: false
+        styles:
+          card:
+            - height: 35px
+            - width: 240px
+            - background-color: "#181818"
+            - border-top: 2px solid
+            - border-left: 2px solid
+            - border-bottom: 2px solid
+            - border-top-right-radius: 0px
+            - border-bottom-right-radius: 0px
+            - border-top-left-radius: 10px
+            - border-bottom-left-radius: 10px
+            - border-color: gray
+          label:
+            - font-size: 15px
+            - font-weight: bold
+            - padding-left: 17px
+    alert_riscaldamenti_accesi_icona:
+      card:
+        type: custom:button-card
+        template: no_background
+        entity: automation.avviso_riscaldamento_acceso
+        icon: mdi:radiator-off
+        show_name: false
+        show_label: false
+        show_icon: true
+        size: 100%
+        styles:
+          card:
+            - height: 25px
+            - width: 25px
+          grid:
+            - grid-template-columns: 1fr
+        state:
+          - value: 'on'
+            icon: mdi:message-badge-outline
+            color: "DarkOrange"
+          - value: 'off'
+            icon: mdi:cellphone-message-off
+
+    avvisi:
+      card:
+        type: custom:button-card
+        entity: input_boolean.avvisi_generale_ricircolo_aria
+        label: "[[[ return 'Avvisi ricambio aria' ]]]"
+        show_name: false
+        show_label: true
+        show_icon: false
+        styles:
+          card:
+            - height: 35px
+            - width: 240px
+            - background-color: "#181818"
+            - border-top: 2px solid
+            - border-left: 2px solid
+            - border-bottom: 2px solid
+            - border-top-right-radius: 0px
+            - border-bottom-right-radius: 0px
+            - border-top-left-radius: 10px
+            - border-bottom-left-radius: 10px
+            - border-color: gray
+          label:
+            - font-size: 15px
+            - font-weight: bold
+            - padding-right: 33px
+    avvisi_icona:
+      card:
+        type: custom:button-card
+        template: no_background
+        entity: input_boolean.avvisi_generale_ricircolo_aria
+        show_name: false
+        show_label: false
+        show_icon: true
+        size: 100%
+        styles:
+          card:
+            - height: 25px
+            - width: 25px
+          grid:
+            - grid-template-columns: 1fr
+        state:
+          - value: 'on'
+            icon: mdi:account-voice
+            color: "DarkOrange"
+          - value: 'off'
+            icon: mdi:volume-variant-off
+
+    away_button:
+      card:
+        type: custom:button-card
+        template: no_background
+        confirmation:
+          text: '[[[ return `Settare il programma Fuori Casa?` ]]]'
+        entity: script.away
+        icon: mdi:home-export-outline
+        show_name: false
+        show_label: false
+        show_icon: true
+        size: 80%
+        styles:
+          card:
+            - height: 35px
+            - width: 50px
+            - border-top: 2px solid
+            - border-left: 2px solid
+            - border-right: 2px solid
+            - border-bottom: 2px solid
+            - border-top-right-radius: 10px
+            - border-bottom-right-radius: 10px
+            - background-color: "#181818"
+            - border-color: gray
+          grid:
+            - grid-template-columns: 1fr
+          icon:
+            - color: >
+                [[[
+                  if (entity.attributes.preset_mode == 'away')
+                    return "DarkOrange";
+                  return "whait";
+                ]]]
+        tap_action:
+          action: call-service
+          service: script.away
+
+    preset_mode_button:
+      card:
+        type: custom:button-card
+        template: no_background
+        confirmation:
+          text: '[[[ return `Settare il programma Home?` ]]]'
+        entity: script.preset_mode
+        icon: mdi:home
+        show_name: false
+        show_label: false
+        show_icon: true
+        size: 80%
+        styles:
+          card:
+            - height: 35px
+            - width: 50px
+            - border-top: 2px solid
+            - border-left: 2px solid
+            - border-right: 2px solid
+            - border-bottom: 2px solid
+            - border-top-right-radius: 10px
+            - border-bottom-right-radius: 10px
+            - background-color: "#181818"
+            - border-color: gray
+          grid:
+            - grid-template-columns: 1fr
+          icon:
+            - color: >
+                [[[
+                  if (entity.attributes.preset_mode == 'home')
+                    return "DarkOrange";
+                  return "whait";
+                ]]]
+        tap_action:
+          action: call-service
+          service: script.preset_mode
+
+    spegni_tutto_button:
+      card:
+        type: custom:button-card
+        template: no_background
+        confirmation:
+          text: '[[[ return `Sicuro di spegnere tutte le valvole?` ]]]'
+        entity: script.power_off_valvole
+        icon: mdi:power
+        show_name: false
+        show_label: false
+        show_icon: true
+        size: 80%
+        styles:
+          card:
+            - height: 35px
+            - width: 50px
+            - border-top: 2px solid
+            - border-left: 2px solid
+            - border-right: 2px solid
+            - border-bottom: 2px solid
+            - border-top-right-radius: 10px
+            - border-bottom-right-radius: 10px
+            - background-color: "#181818"
+            - border-color: gray
+          grid:
+            - grid-template-columns: 1fr
+          icon:
+            - color: "whait"
+        tap_action:
+          action: call-service
+          service: script.power_off_valvole
+  tap_action: none
