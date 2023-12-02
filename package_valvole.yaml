@@ -1,0 +1,508 @@
+homeassistant:
+  customize:
+    package.node_anchors:
+      Sensore Finestra: &sensore_finestra binary_sensor.finestra_cucina_contact
+      Valvola: &valvola climate.valvola_cucina
+
+################################################################################
+##                  Recorder
+################################################
+recorder:
+  include:
+    entities:
+      - sensor.valvola_cucina_trv
+
+################################################################################
+##                  input_text
+################################################
+input_text:
+  apertura_finestra_cucina:
+    name: Cambio stato finestra Cucina
+  counter_finestra_cucina:
+    name: Cambio stato counter finestra Cucina
+
+################################################################################
+##                  input_boolean
+################################################
+input_boolean:
+  valvola_cucina_notifica_vocale_finestra_aperta:
+    name: Valvola Cucina Avviso vocale
+    icon: mdi:circle-slice-8
+  valvola_cucina_notifica_true_temperature:
+    name: Valvola cucina Avviso differenza True Temperature
+    icon: mdi:thermometer-lines
+
+##############################################################################
+##                  Input Number
+################################################
+input_number:
+  valvola_cucina_ritardo_controllo_finestra_aperta:
+    name: Ritardo spegnimento
+    icon: mdi:timelapse
+    unit_of_measurement: Min
+    min: 1
+    max: 30
+    step: 1
+
+  valvola_cucina_ritardo_notifica_finestra_aperta:
+    name: Ritardo Notifica
+    icon: mdi:message-text-clock-outline
+    unit_of_measurement: Min
+    initial: 10
+    min: 5
+    max: 120
+    step: 5
+
+  valvola_cucina_avviso_finestra_lasciata_aperta:
+    name: Ritardo Notifica finestra lasciata aperta
+    icon: mdi:account-voice
+    unit_of_measurement: Min
+    initial: 30
+    min: 5
+    max: 240
+    step: 5
+
+################################################################################
+##                  Counter
+################################################
+counter:
+  finestra_cucina:
+    initial: 0
+    step: 1
+    icon: mdi:counter
+    restore: true
+
+################################################################################
+##                  Meter
+################################################
+utility_meter:
+  meter_valvola_cucina_anno:
+    source: sensor.tempo_valvola_cucina
+    cycle: yearly
+  meter_valvola_cucina_mese:
+    source: sensor.tempo_valvola_cucina
+    cycle: monthly
+  meter_valvola_cucina_oggi:
+    source: sensor.tempo_valvola_cucina
+    cycle: daily
+
+################################################################################
+##                  Binary Sensor
+################################################
+template:
+  - binary_sensor:
+      - name: Valvola Cucina
+        icon: mdi:circle-double
+        state: "{{ state_attr('climate.valvola_cucina' ,'hvac_action') == 'heating' }}"
+
+################################################################################
+##                  Sensor
+################################################
+  - sensor:
+      - name: Stato Valvola Cucina
+        unique_id: stato_valvola_cucina
+        state: >-
+          {{ state_attr('climate.valvola_cucina','preset_mode') }}
+
+
+      - name: "Tempo valvola cucina"
+        unique_id: tempo_valvola_cucina
+        icon: mdi:history
+        state: >-
+          {% from 'history_stats_custom.jinja' import time_on %}
+          {{ time_on('binary_sensor.valvola_cucina') }}
+        attributes:
+          Durata: >
+            {%if is_state('binary_sensor.valvola_cucina', 'on') and (as_timestamp(states.binary_sensor.valvola_cucina.last_changed)) <= as_timestamp(now())%}
+              {{((as_timestamp(now()) - as_timestamp(states.binary_sensor.valvola_cucina.last_changed)) -3600 ) | timestamp_custom('%H:%M') }}
+            {% else %}
+              0
+            {% endif %}
+          Oggi: >
+            {% from 'history_stats.jinja' import history %}
+            {{ history(states('sensor.meter_valvola_cucina_oggi')) }}
+          Mese: >-
+            {% from 'history_stats.jinja' import history %}
+            {{ history(states('sensor.meter_valvola_cucina_mese')) }}
+          Anno: >-
+            {% from 'history_stats.jinja' import history %}
+            {{ history(states('sensor.meter_valvola_cucina_anno')) }}
+
+      - name: "Valvola cucina trv"
+        unique_id: valvola_cucina_trv
+        device_class: power_factor
+        unit_of_measurement: '%'
+        state: >
+          {% if states('sensor.cucina_riscaldamento') != 'unavailable' and states('sensor.cucina_riscaldamento') != 'unknown' %}
+            {{ states('sensor.cucina_riscaldamento') }}
+          {% else %}
+            Verica
+          {% endif %}
+
+      - name: "Last change finestra cucina"
+        unique_id: last_change_finestra_cucina
+        state: >-
+          {%- set time = (as_timestamp(now()) - as_timestamp(states.binary_sensor.finestra_cucina_contact.last_changed)) - 3600 | int  %}
+          {{'Poco fa' if time | timestamp_custom('%M') | int < 1 else time | timestamp_custom('%H:%M', true) }}
+
+      - name: "Last change finestra cucina info"
+        unique_id: last_change_finestra_cucina_info
+        state: >-
+          {{ states('input_text.apertura_finestra_cucina')|int | timestamp_custom('%d/%m/%Y - %H:%M',true) }}
+
+      - name: "Ricircolo aria cucina"
+        unique_id: 71bc6bc43fa8736af58e9fd81ae5984b
+        state: >-
+          {% set var = states('input_text.counter_finestra_cucina') %}
+            {% if var != 'unknown' %}
+            {% set var = var | int %}
+            {% set ora = as_timestamp(now()) - 3600 %}
+            {% set ricircolo = (ora - var) | timestamp_custom('%H:%M') %}
+            {% if ricircolo < '03:59' %}
+              Ok
+            {% elif ricircolo >= '04:00' and  ricircolo < '05:59'%}
+              Medio
+            {% elif ricircolo >= '06:00' and  ricircolo < '07:59'%}
+              Grave
+            {% elif ricircolo >= '08:00' %}
+              Urgente
+            {% else %}
+              Errore
+            {% endif %}
+          {% else %}
+            Attesa
+          {% endif %}
+        attributes:
+          tempo: >
+            {%- set var = states('input_text.counter_finestra_cucina') %}
+            {% if var != 'unknown' %}
+              {% set var = var | int %}
+              {% set ora = as_timestamp(now()) - 3600 %}
+              {% set ricircolo = (ora - var) | timestamp_custom('%H:%M') %}
+              {{ricircolo}}
+            {% else %}
+              0
+            {% endif %}
+        icon: mdi:cached
+
+      - name: "Valvola Cucina True Temperature"
+        unique_id: valvola_cucina_true_temperature
+        state: >
+          {{(state_attr('climate.valvola_cucina','current_temperature') |float(0) ) - (states('sensor.temperatura_cucina') |float(0) ) |int }}
+
+################################################################################
+##                  AUTOMATION
+###################################################
+automation:
+  - alias: "Conteggio apertura finestra cucina"
+    mode: parallel
+    id: 08925f856dd29da3a935090a7683c750
+    initial_state: true
+    trigger:
+      - platform: state
+        id: "variabile"
+        entity_id: *sensore_finestra
+        from: "off"
+        to: "on"
+        for:
+          minutes: 3
+
+      - platform: state
+        id: "conteggio"
+        entity_id: *sensore_finestra
+        from: "off"
+        to: "on"
+        for:
+          minutes: 3
+      - platform: time
+        at: "05:00:00"
+        id: "reset"
+    action:
+      - choose:
+          - conditions: # VARIABILE
+              - alias: "VARIABILE"
+                condition: trigger
+                id: "variabile"
+            sequence:
+              - service: input_text.set_value
+                target:
+                  entity_id: input_text.apertura_finestra_cucina
+                data:
+                  value: "{{ as_timestamp(now()) }}"
+
+          - conditions: # CONTEGGIO
+              - alias: "CONTEGGIO"
+                condition: trigger
+                id: "conteggio"
+            sequence:
+              - service: counter.increment
+                target:
+                  entity_id: counter.finestra_cucina
+              - service: input_text.set_value
+                target:
+                  entity_id: input_text.counter_finestra_cucina
+                data:
+                  value: "{{ as_timestamp(now()) }}"
+
+          - conditions: # RESET
+              - alias: "RESET"
+                condition: trigger
+                id: "reset"
+            sequence:
+              - service: counter.reset
+                target:
+                  entity_id: counter.finestra_cucina
+
+  - alias: "Valvola cucina gestione finestra"
+    id: 6ad9de478ac0da56e36366239490423a
+    initial_state: true
+    mode: parallel
+    trigger:
+      - platform: state #FINESTRA APERTA
+        id: "chiusura"
+        entity_id: *sensore_finestra
+        from: "off"
+        to: "on"
+        for:
+          minutes: "{{ states('input_number.valvola_cucina_ritardo_controllo_finestra_aperta')|int }}"
+
+      - platform: state #FINESTRA CHIUSA
+        id: "apertura"
+        entity_id: *sensore_finestra
+        from: "on"
+        to: "off"
+        for:
+          seconds: 15
+
+      - platform: state # NOTIFICA
+        id: "notifica"
+        entity_id: *sensore_finestra
+        from: "off"
+        to: "on"
+        for:
+          minutes: "{{ states('input_number.valvola_cucina_ritardo_notifica_finestra_aperta')|int(0) +1 }}"
+
+      - platform: state # NOTIFICA FINESTRA LASCIATA APERTA
+        id: "finestra_aperta"
+        entity_id: *sensore_finestra
+        from: "off"
+        to: "on"
+        for:
+          minutes: "{{ states('input_number.valvola_cucina_avviso_finestra_lasciata_aperta')|int(0) }}"
+    condition:
+      - condition: template
+        value_template: "{{ state_attr('climate.valvola_cucina', 'preset_mode') == 'home' }}"
+    action:
+      - choose:
+          - conditions: # CHIUSURA
+              - alias: "CHIUSURA"
+                condition: trigger
+                id: "chiusura"
+            sequence:
+              - service: climate.turn_off
+                target:
+                  entity_id: *valvola
+
+          - conditions: # APERTURA
+              - alias: "APERTURA"
+                condition: trigger
+                id: "apertura"
+              - condition: template
+                value_template: "{{ state_attr('climate.valvola_cucina', 'preset_mode') == 'home' }}"
+            sequence:
+              - service: climate.turn_on
+                target:
+                  entity_id: *valvola
+              - service: climate.set_hvac_mode
+                data:
+                  hvac_mode: auto
+                target:
+                  entity_id: *valvola
+
+          - conditions: # NOTIFICA
+              - alias: "NOTIFICA"
+                condition: trigger
+                id: "notifica"
+            sequence:
+              - service: script.multinotify
+                data:
+                  notify_app: notify.famiglia
+                  title: "Valvola cucina"
+                  message: "Finestra della cucina aperta da {{states('sensor.last_change_finestra_cucina')}}."
+                  group: "valvola_cucina"
+                  tag: "valvola_cucina_apertura"
+
+          - conditions: # NOTIFICA FINESTRA LASCIATA APERTA
+              - alias: "NOTIFICA FINESTRA LASCIATA APERTA"
+                condition: trigger
+                id: "finestra_aperta"
+            sequence:
+              - if:
+                  - condition: state
+                    entity_id: input_boolean.valvola_cucina_notifica_vocale_finestra_aperta
+                    state: "on"
+                then:
+                  - service: script.multinotify
+                    data:
+                      notify_app: notify.famiglia
+                      title: "Valvola cucina"
+                      message: >
+                        {% set tempo = states('input_number.valvola_cucina_avviso_finestra_lasciata_aperta') |int %}
+                        {{["La finestra della cucina è ormai aperta da " ~ tempo ~ "minuti",
+                            "Sono passati già " ~ tempo ~ " minuti da quando hai aperto la finestra della cucina!",
+                            "Penso che " ~ tempo ~ " minuti possano bastare. Ora puoi chiudere la finestra della cucina",
+                            "Hey, che ne dici di chiudere la finestra della cucina?  è aperta da " ~ tempo ~ " minuti",
+                            "Forse hai dimenticato di aver aperto al finestra della cucina. L'hai aperta " ~ tempo ~ " minuti fa!",
+                            "Hey," ~ tempo ~ " minuti sono passati. Che ne dici di chiudere la finestra della cucina? "] | random}}
+                      alexa_target: media_player.in_casa
+                      alexa_force: true
+                      group: "valvola_cucina"
+                      tag: "valvola_cucina_apertura"
+
+              - service: script.multinotify
+                data:
+                  notify_app: notify.famiglia
+                  title: "Valvola cucina"
+                  message: >
+                    {% set tempo = states('input_number.valvola_cucina_avviso_finestra_lasciata_aperta') |int %}
+                    {{["La finestra della cucina è ormai aperta da " ~ tempo ~ "minuti",
+                        "Sono passati già " ~ tempo ~ " minuti da quando hai aperto la finestra della cucina!",
+                        "Penso che " ~ tempo ~ " minuti possano bastare. Ora puoi chiudere la finestra della cucina",
+                        "Hey, che ne dici di chiudere la finestra della cucina?  è aperta da " ~ tempo ~ " minuti",
+                        "Forse hai dimenticato di aver aperto al finestra della cucina. L'hai aperta " ~ tempo ~ " minuti fa!",
+                        "Hey," ~ tempo ~ " minuti sono passati. Che ne dici di chiudere la finestra della cucina? "] | random}}
+                  tag: "valvola_cucina_apertura"
+                  group: "valvola_cucina"
+
+  - alias: "Pulizia notifiche valvola cucina"
+    id: 25b7cd4b40e1ccc43aa4ca68f9cff22c
+    trigger:
+      - platform: state
+        entity_id: *sensore_finestra
+        from: "on"
+        to: "off"
+    action:
+      - service: notify.mobile_app_francesco
+        data:
+          message: "clear_notification"
+          data:
+            tag: "valvola_cucina_apertura"
+      - service: notify.mobile_app_iphone_di_simona
+        data:
+          message: "clear_notification"
+          data:
+            tag: "valvola_cucina_apertura"
+
+  - alias: "Avviso disconnessione valvola cucina"
+    id: 4e0ee25eec1e130b36f6b8343287e9cd
+    initial_state: true
+    trigger:
+      - platform: state
+        entity_id: *valvola
+        to: "unavailable"
+    action:
+      - service: !secret notifiche_francesco
+        data:
+          title: 'Attenzione'
+          message: Valvola cucina disconnessa.
+
+  - alias: "Avviso True Temperature valvola cucina"
+    id: c4ead12c82173cf45afbdb25a6ae92d7
+    initial_state: true
+    trigger:
+      - platform: numeric_state
+        entity_id: sensor.valvola_cucina_true_temperature
+        above: 1.5
+        for:
+          minutes: 60
+    condition:
+      - condition: state
+        entity_id: input_boolean.valvola_cucina_notifica_true_temperature
+        state: "on"
+    action:
+      - service: script.multinotify
+        data:
+          notify_app: !secret notifiche_francesco
+          title: "Valvola cucina"
+          message: >
+            L'offset della valvola è di {{states('sensor.valvola_cucina_true_temperature')}}°
+            La temperatura della valvola è {{(state_attr('climate.valvola_cucina','current_temperature') |float)}}°, mentre la temperatura ambientiale
+            risulta {{(states('sensor.temperatura_cucina') |float) }}°
+          group: "valvola_cucina"
+          tag: "true_temperature"
+
+  - alias: "Notifica Batteria scarica valvola cucina"
+    id: 0bf8d471ea06b80a53980a78b8b73afd
+    initial_state: true
+    trigger:
+      - platform: template
+        value_template: >-
+          {{is_state('binary_sensor.valvola_cucina_batteria', 'on') }}
+        for:
+          minutes: 1
+    action: # SERVIZIO DI NOTIFICA
+      - service: script.multinotify
+        data:
+          notify_app: !secret notifiche_francesco
+          title: 'Attenzione'
+          message: Batteria Valvola cucina al {{states('sensor.cucina_battery_percent')}}%
+
+  - alias: "Avviso ricambio aria valvola cucina"
+    id: avviso_ricambio_aria_valvola_cucina
+    initial_state: true
+    trigger:
+      - platform: state
+        id: "1_ora"
+        entity_id: sensor.ricircolo_aria_cucina
+        to: "Urgente"
+        for:
+          hours: 1
+      - platform: state
+        id: "2_ora"
+        entity_id: sensor.ricircolo_aria_cucina
+        to: "Urgente"
+        for:
+          hours: 2
+    condition:
+      - condition: state
+        entity_id: input_boolean.avvisi_generale_ricircolo_aria
+        state: "on"
+      - condition: time
+        after: "11:00:00"
+        before: "22:30:00"
+        weekday:
+          - mon
+          - tue
+          - wed
+          - thu
+          - fri
+    action:
+      - choose:
+          - conditions: # 1 ORA
+              - alias: "CHIUSURA"
+                condition: trigger
+                id: "1_ora"
+            sequence:
+              - service: script.multinotify
+                data:
+                  notify_app: notify.famiglia
+                  title: "Ricambio Aria"
+                  message: "In cucina la finestra non viene aperta da 9 ore"
+                  group: "valvola_cucina"
+                  tag: "valvola_cucina_apertura"
+
+          - conditions: # 2 ORE
+              - alias: "CHIUSURA"
+                condition: trigger
+                id: "2_ora"
+            sequence:
+              - service: script.multinotify
+                data:
+                  title: "Valvola cucina"
+                  message: >
+                    {{["La finestra della cucina non viene aperta da 10 ore",
+                        "Sono passate più di 10 ore da quando è stata cambita l'aria in cucina",
+                        "Potresti cambiare l'aria in cucina? Non viene fatto da 10 ore",
+                        "Forse hai dimenticato di aprire in cucina, sono passate 10 ore da l'ultima volta"] | random}}
+                  alexa_target: media_player.in_casa
+                  alexa_force: true
