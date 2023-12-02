@@ -20,6 +20,7 @@ Progetto originariamente neto per la gestione delle riscaldamento con Netatmo e 
 - File history_stat_custom.jinja presente nella cartella custom_templates. (Se non c'è, create la cartella custom_templates nella root principale di HA e poi copiate il file history_stat_custom.jinja. Riavviate HA.
 - Ogni valvola dovrà essere chiamata climate.valvola_NOMEDELLASTANZA es climate.valvola_soggiorno
 - Gruppo famiglia esistente
+- Browser_mod
 - Custom Button Card installato con la gestione dei template. Doc di come fare qui: https://github.com/custom-cards/button-card#configuration-templates
 in Generale, basterebbe creare nella root principale la cartella "buttom_templates" dove metterci all'interno il file template.yaml e mettere questa srtinga all'inizio del file lovelace button_card_templates: !include_dir_merge_named buttom_templates/
 - Gestione dei packages in HA. Doc ufficiale https://www.home-assistant.io/docs/configuration/packages/
