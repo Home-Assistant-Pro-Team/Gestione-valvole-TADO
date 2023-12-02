@@ -8,10 +8,9 @@ Grazie di cuore per il tuo sostegno!
 
 # Gestione valvole termostatiche TADO
 Progetto originariamente neto per la gestione delle riscaldamento con Netatmo e successivamente modificato per Tado.
-![405882255_6631155697012498_3849374981296037721_n](https://github.com/Home-Assistant-Pro-Team/Benessere/assets/48358142/f016d1ae-c334-41bb-ac17-3fc491146afe)
+<img width="1148" alt="Screenshot 2023-11-24 alle 20 34 06" src="https://github.com/Home-Assistant-Pro-Team/Gestione-valvole-TADO/assets/48358142/86e53253-ba5e-413c-b312-fe4e632cc5eb">
+
 ![Screenshot 2023-12-01 164128](https://github.com/Home-Assistant-Pro-Team/Benessere/assets/48358142/09b1f49e-8c0b-4a9e-9cb9-f29475c38903)
-
-
 
 ![Screenshot 2023-12-01 164205](https://github.com/Home-Assistant-Pro-Team/Benessere/assets/48358142/91c68318-52ac-4a93-baa9-e5166d78e72b)
 ![Screenshot 2023-12-01 164341](https://github.com/Home-Assistant-Pro-Team/Benessere/assets/48358142/1123dd4e-8c03-46b8-a93f-fc669d3a4a82)
