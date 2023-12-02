@@ -14,6 +14,7 @@ Progetto originariamente neto per la gestione delle riscaldamento con Netatmo e 
 - Gruppo famiglia esistente
 - Custom Button Card installato con la gestione dei template. Doc di come fare qui: https://github.com/custom-cards/button-card#configuration-templates
 in Generale, basterebbe creare nella root principale la cartella "buttom_templates" dove metterci all'interno il file template.yaml e mettere questa srtinga all'inizio del file lovelace button_card_templates: !include_dir_merge_named buttom_templates/
+- Gestione dei packages in HA. Doc ufficiale https://www.home-assistant.io/docs/configuration/packages/
 
 ## Descrizine
 Questo package prefigge l'obbiettivo di gestire e ottimizzare il riscaldamento di casa gestendo anche l'apertura delle finestre e il ricambio d'aria.
@@ -66,6 +67,12 @@ Con questi 3 tasti invece abbiamo rispetticamente:
 - L'utimo tasto accene o spenge la gestione generale del ricambio d'aria.
 
 
+# Setup
+dopo aver soddisfattto i prerequisiti,
+- Copiate i file package nella vostra cartella di destinazine dei packages.
+- Copiate il file template della vostra destinazione per i template dei custom button card
+- Copiate le card replicandole quante volte volete.
 
+Tutti i file di esempio sono redatti sulla mia camera studio, di conseguenza, vi baseterà in ogni file cercare la parola "studio" per trovare tutte le righe da editare con le vostre entità.
 
 
