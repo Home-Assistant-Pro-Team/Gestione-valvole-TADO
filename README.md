@@ -1,10 +1,11 @@
 `- Version: 1.0 -` 
 ### **Supportaci**
-Se hai apprezzato questo progetto, ci piacerebbe avere il tuo supporto. Anche un semplice caffè può fare la differenza. 
+Se apprezzi questo progetto, ci piacerebbe avere il tuo supporto, anche con un semplice caffè. 
 I fondi raccolti saranno utilizzati per acquistare nuovo materiale e realizzare nuovi progetti. Puoi contribuire cliccando sul pulsante qui sotto. 
 Grazie di cuore per il tuo sostegno!
 
 [![ko-fi](https://ko-fi.com/img/githubbutton_sm.svg)](https://ko-fi.com/M4M1MI00I)
+
 # Gestione valvole termostatiche TADO
 Progetto originariamente neto per la gestione delle riscaldamento con Netatmo e successivamente modificato per Tado.
 ![405882255_6631155697012498_3849374981296037721_n](https://github.com/Home-Assistant-Pro-Team/Benessere/assets/48358142/f016d1ae-c334-41bb-ac17-3fc491146afe)
@@ -83,7 +84,7 @@ dopo aver soddisfattto i prerequisiti,
 Tutti i file di esempio sono redatti sulla mia camera studio, di conseguenza, vi baseterà in ogni file cercare la parola "studio" per trovare tutte le righe da editare con le vostre entità.
 
 ### **Supportaci**
-Se hai apprezzato questo progetto, ci piacerebbe avere il tuo supporto. Anche un semplice caffè può fare la differenza. 
+Se apprezzi questo progetto, ci piacerebbe avere il tuo supporto, anche con un semplice caffè. 
 I fondi raccolti saranno utilizzati per acquistare nuovo materiale e realizzare nuovi progetti. Puoi contribuire cliccando sul pulsante qui sotto. 
 Grazie di cuore per il tuo sostegno!
 
