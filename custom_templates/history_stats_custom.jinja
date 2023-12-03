@@ -1,0 +1,58 @@
+{###########################################################
+#             TEMPO
+###########################################################}
+
+{# Visualizzo tempo istantaneo lasciando il print da spento #}
+{% macro last_use(start, end, binary) %}
+  {% if not is_state(binary, ['off', 'unavailable', 'unknown']) %}
+    {% set times = (as_timestamp(now()) - states(start) | float(0)) %}
+  {% else %}
+    {% set times = (state_attr(end, 'time') | float(0) - states(start) | float(0)) %}
+  {% endif %}
+  {{ times | timestamp_custom("%-H h %-M m" if times // 3600 > 0 else "%-M min", false) }}
+{% endmacro %}
+
+{# Tempo di utilizzo da passare ad utility_meter #}
+{% macro time_on(entity_id) %}
+  {{ (as_timestamp(now()) - as_timestamp(states[entity_id].last_changed)) / 3600 if not is_state(entity_id, ['off', 'unavailable', 'unknown']) and states[entity_id].last_changed is defined else 0 }}
+{% endmacro %}
+
+{# converte tempo di utility_meter in un modo più amichevole #}
+{% macro history(entity_id) %}
+  {% set time = entity_id | float(0) %}
+  {% set minutes = ((time % 1) * 60) | int(0) %}
+  {% set hours = (time - (time % 1)) | int(0) %}
+  {% set days = (hours // 24) | int(0) %}
+  {% if days > 0 %}
+    {{ days }}d {{ hours - (days * 24) }}h {{ minutes }}m
+  {% elif hours > 0 %}
+    {{ hours }}h {{ minutes }}m
+  {% else %}
+    {{ minutes }} min
+  {% endif %}
+{% endmacro %}
+
+{###########################################################
+#             STORICO
+###########################################################}
+
+{# Storico giorni della settimana e mensile #}
+{% macro storico_statistiche(periodo, this_entity, costo, consumo, cicli, tempo, reset) %}
+{% if periodo == 'mesi' %}
+  {% set periodo = ["Gennaio", "Febbraio", "Marzo", "Aprile", "Maggio", "Giugno", "Luglio", "Agosto", "Settembre", "Ottobre", "Novembre", "Dicembre"] %}
+  {% set attuale = periodo[ now().month - 1 ] %}
+{% else %}
+  {% set periodo = ["Lunedi", "Martedi", "Mercoledi", "Giovedi", "Venerdi", "Sabato", "Domenica"] %}
+  {% set attuale = periodo[now().weekday()] %}
+{% endif %}
+{
+    {%- for key in periodo -%}
+    "{{ key }}": {
+        "costo": "{% if reset %} attesa {% elif key == attuale %}{{ costo }} €{% elif this_entity[key] is defined and this_entity[key]['costo'] is defined %}{{ this_entity[key].costo }}{% else %} attesa {% endif %}",
+        "consumo": "{% if reset %} attesa {% elif key == attuale %}{{ consumo }} kWh{% elif this_entity[key] is defined and this_entity[key]['consumo'] is defined %}{{ this_entity[key].consumo }}{% else %} attesa {% endif %}",
+        "cicli": "{% if reset %} attesa {% elif key == attuale %}{{ cicli }}{% elif this_entity[key] is defined and this_entity[key]['cicli'] is defined %}{{ this_entity[key].cicli }}{% else %} attesa {% endif %}",
+        "tempo": "{% if reset %} attesa {% elif key == attuale %}{{ tempo }}{% elif this_entity[key] is defined and this_entity[key]['tempo'] is defined %}{{ this_entity[key].tempo }}{% else %} attesa {% endif %}"
+    }{%- if not loop.last %},{% endif %}
+    {%- endfor -%}
+}
+{% endmacro %}
