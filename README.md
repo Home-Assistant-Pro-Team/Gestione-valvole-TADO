@@ -20,6 +20,7 @@ Progetto originariamente neto per la gestione delle riscaldamento con Netatmo e 
 - Ogni valvola dovrà essere chiamata climate.valvola_NOMEDELLASTANZA es climate.valvola_soggiorno
 - Gruppo famiglia esistente
 - Browser_mod
+- Il servizo di notifiche è affidato al fantastico Multinotify di Henrik vi consiglio di leggere questo articolo https://henriksozzi.it/2022/01/package-multinotify-notifiche-su-alexa-e-app/ oppure di sostituire le notifiche con un vostro servizio
 - custom:apexcharts-card
 - Custom Button Card installato con la gestione dei template. Doc di come fare qui: https://github.com/custom-cards/button-card#configuration-templates
 in Generale, basterebbe creare nella root principale la cartella "buttom_templates" dove metterci all'interno il file template.yaml e mettere questa srtinga all'inizio del file lovelace button_card_templates: !include_dir_merge_named buttom_templates/
