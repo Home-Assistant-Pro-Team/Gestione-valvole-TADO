@@ -1,0 +1,219 @@
+homeassistant:
+  customize:
+    package.node_anchors:
+      customize: &customize
+        package: 'Alert Riscaldamento Acceso'
+        version: 'v1.3 - 11/2023'
+        author: 'Calas'
+        Lista notify per alert: &alert
+          - mobile_app_francesco
+          - mobile_app_iphone_di_simona
+
+#******************************************************************************#
+#                                   C O R P O                                  #
+#******************************************************************************#
+
+################################################################################
+##                  Input Boolean
+###################################################
+input_boolean:
+  riscaldamenti_accesi:
+    name: Riscaldamenti accesi
+  accensione_riscaldamenti_al_rientro:
+    name: Accensione al rientro
+
+##############################################################
+#         DA QUESTO PUNTO NON MODIFICARE
+##############################################################
+alert:
+  riscaldamento_acceso:
+    name: Avviso batterie con allarme inserito
+    message: "Nessuno è in casa ma i termosifoni sono accesi, li lascio in funzione?"
+    entity_id: input_boolean.riscaldamenti_accesi
+    state: "on"
+    repeat: 5
+    title: --RISCALDAMENTO--
+    data:
+      tag: spegni_termosifoni
+      actions:
+        - action: "ACTION_SPEGNI_TERMOSIFONI_SI"
+          title: "Si"
+        - action: "ACTION_SPEGNI_TERMOSIFONI_NO"
+          title: "No, spegni ora."
+          destructive: yes
+    can_acknowledge: true
+    notifiers: *alert
+
+###############################################################################
+#                  AUTOMATION
+###################################################
+automation:
+- alias: "Avviso riscaldamento acceso"
+  id: avviso_riscaldamenti_accesi
+  initial_state: true
+  trigger:
+    - platform: template
+      value_template: "{{ states('sensor.numero_valvole_accese') | int > 0 }}"
+    - platform: state 
+      entity_id: group.famiglia
+      from: "home"
+      to: "not_home"
+
+  condition:
+    - condition: template
+      value_template: >
+        {% set valvola = (states.climate)
+          | selectattr('entity_id','search','valvola')
+          | rejectattr('entity_id','search','homekit')
+          | map(attribute='entity_id')| list| first %}
+        {{ state_attr(valvola, 'preset_mode') == 'home' }}
+    - condition: template
+      value_template: "{{ states('group.famiglia') != 'home'}}"
+      
+  action:
+    - choose:
+        - alias: "Modalita ospite"
+          conditions:
+            - condition: state
+              entity_id: input_boolean.modo_ospite
+              state: 'on'
+          sequence:
+            - service: !secret notifiche_francesco
+              data:
+                title: 'Attenzione'
+                message: Il riscaldamento rimarrà acceso perchè la modalità ospite è attiva.
+    - choose:
+        - alias: "Modalita ospite"
+          conditions:
+            - condition: template
+              value_template: "{{ states('sensor.numero_valvole_accese') | int > 0 }}"
+          sequence:
+            - service: input_boolean.turn_on
+              data:
+                entity_id: input_boolean.riscaldamenti_accesi
+      default:
+        - service: input_boolean.turn_on
+          data:
+            entity_id: input_boolean.riscaldamenti_accesi
+
+- alias: "Accensione Termosifoni al rientro"
+  id: accensione_termosifoni_al_rientro
+  trigger:
+    - platform: state
+      entity_id: group.famiglia
+      from: "not_home"
+      to: "home"
+  condition:
+    - condition: template
+      value_template: "{{ states('sensor.stagioni') != 'Estate' }}"
+
+    - condition: template
+      value_template: >
+        {% set valvola = (states.climate)
+          | selectattr('entity_id','search','valvola')
+          | rejectattr('entity_id','search','homekit')
+          | map(attribute='entity_id')| list| first %}
+        {{ state_attr(valvola, 'preset_mode') == 'away' }}
+
+  action:
+    - service: script.turn_on
+      target:
+        entity_id: script.preset_mode
+
+    - service: input_boolean.turn_off
+      data:
+        entity_id: input_boolean.riscaldamenti_accesi
+
+    - service: notify.famiglia
+      data:
+        message: clear_notification
+        data:
+          tag: spegni_termosifoni
+
+################################################################################
+##                  ACTIONS
+###################################################
+- alias: "iOS Action Spegni - Termosifoni Accesi"
+  id: ios_action_spegni_termosifoni_accesi
+  initial_state: true
+  trigger:
+    - platform: event
+      event_type: mobile_app_notification_action
+      event_data:
+        action: "ACTION_SPEGNI_TERMOSIFONI_SI"
+    - platform: event
+      event_type: mobile_app_notification_action
+      event_data:
+        action: "ACTION_SPEGNI_TERMOSIFONI_NO"
+  action:
+    - choose:
+        - alias: "SI"
+          conditions:
+            - condition: template
+              value_template: "{{ trigger.event.data.action == 'ACTION_SPEGNI_TERMOSIFONI_SI' }}"
+          sequence:
+            - service: script.multinotify
+              data:
+                title: ''
+                message: >
+                  {{["Ok, lascio stare",
+                  "Va bene, li lascio accesi",
+                  "Ok, non tocco nulla",
+                  "Come vuoi, lascio il riscaldamento acceso",
+                  "Bene, la casa rimarrà al calduccio"] | random}}
+                notify_app: notify.famiglia
+                group: riscaldamenti
+
+            - service: notify.famiglia
+              data:
+                message: clear_notification
+                data:
+                  tag: spegni_termosifoni
+
+            - service: input_boolean.turn_off
+              data:
+                entity_id: input_boolean.riscaldamenti_accesi
+            - service: notify.famiglia
+              data:
+                message: clear_notification
+                data:
+                  tag: spegni_termosifoni
+
+        - alias: "NO"
+          conditions:
+            - condition: template
+              value_template: "{{ trigger.event.data.action == 'ACTION_SPEGNI_TERMOSIFONI_NO' }}"
+          sequence:
+            - service: climate.set_preset_mode
+              data:
+                preset_mode: away
+              target:
+                entity_id: >
+                  {{(states.climate)
+                    | selectattr('entity_id','search','valvola')
+                    | rejectattr('entity_id','search','homekit')
+                    | map(attribute='entity_id')
+                    | list
+                    | first }}
+
+            - service: script.multinotify
+              data:
+                title: ''
+                message: >
+                  {{["Ok, spengo",
+                  "Va bene, spengo tutto",
+                  "Ok, cosi risparmiamo",
+                  "Faccio subito ...spento",
+                  "Bene, ho spento"] | random}}
+                notify_app: notify.famiglia
+                group: riscaldamenti
+
+            - service: input_boolean.turn_off
+              data:
+                entity_id: input_boolean.riscaldamenti_accesi
+
+            - service: notify.famiglia
+              data:
+                message: clear_notification
+                data:
+                  tag: spegni_termosifoni
