@@ -46,6 +46,26 @@
         - left: 258px
         - top: 87px
 
+      modo_ospiti:
+        - position: absolute
+        - left: 250px
+        - top: 159px
+      modo_ospiti_icona:
+        - position: absolute
+        - left: 258px
+        - top: 163px
+
+      timer_modo_ospiti:
+        - position: absolute
+        - left: 378px
+        - top: 166px
+        - display: |
+            [[[
+              if (states['timer.riscaldamento_modo_ospiti'].state == "idle")
+                return "none";
+              return "block";
+            ]]]
+
       avvisi:
         - position: absolute
         - left: 250px
@@ -253,6 +273,122 @@
             color: "DarkOrange"
           - value: 'off'
             icon: mdi:volume-variant-off
+
+    modo_ospiti:
+      card:
+        type: custom:button-card
+        layout: icon_name_state
+        entity: input_boolean.riscaldamento_modo_ospiti
+        label: Modalità Ospiti
+        show_state: false
+        show_name: false
+        show_label: true
+        show_icon: false
+        styles:
+          card:
+            - height: 35px
+            - width: 240px
+            - background-color: "#181818"
+            - border-top: 2px solid
+            - border-left: 2px solid
+            - border-bottom: 2px solid
+            - border-top-right-radius: 0px
+            - border-bottom-right-radius: 0px
+            - border-top-left-radius: 10px
+            - border-bottom-left-radius: 10px
+            - border-color: gray
+
+          state:
+            - font-size: 15px
+            - font-weight: bold
+
+          label:
+            - font-size: 15px
+            - font-weight: bold
+            - padding-right: 60px
+        tap_action:
+          action: call-service
+          service: script.turn_on
+          data:
+            entity_id: |
+              [[[
+                if (states['input_boolean.riscaldamento_modo_ospiti'].state == "on") {
+                  return "script.riscaldamento_modo_ospiti_off"
+                }
+                return "script.riscaldamento_modo_ospiti"
+              ]]]
+    modo_ospiti_icona:
+      card:
+        type: custom:button-card
+        template: no_background
+        entity: input_boolean.riscaldamento_modo_ospiti
+        show_name: false
+        show_label: false
+        show_icon: true
+        size: 100%
+        styles:
+          card:
+            - height: 25px
+            - width: 25px
+          grid:
+            - grid-template-columns: 1fr
+        state:
+          - value: 'on'
+            icon: mdi:account-group
+            color: "DarkOrange"
+          - value: 'off'
+            icon: mdi:account-group-outline
+        tap_action:
+          action: call-service
+          service: script.turn_on
+          data:
+            entity_id: |
+              [[[
+                if (states['input_boolean.riscaldamento_modo_ospiti'].state == "on") {
+                  return "script.riscaldamento_modo_ospiti_off"
+                }
+                return "script.riscaldamento_modo_ospiti"
+              ]]]
+
+    timer_modo_ospiti:
+      card:
+        type: custom:button-card
+        template: no_background
+        entity: timer.riscaldamento_modo_ospiti
+        show_name: false
+        show_label: false
+        show_icon: false
+        show_state: true
+        size: 100%
+        styles:
+          card:
+            - height: 25px
+            - width: 75px
+            - font-size: 15px
+            - font-weight: bold
+          grid:
+            - grid-template-columns: 1fr
+        state:
+          - value: 'on'
+            icon: mdi:account-group
+            color: "DarkOrange"
+          - value: 'off'
+            icon: mdi:account-group-outline
+
+        tap_action:
+          action: call-service
+          service: script.turn_on
+          data:
+            entity_id: |
+              [[[
+                if (states['input_boolean.riscaldamento_modo_ospiti'].state == "on") {
+                  return "script.riscaldamento_modo_ospiti_off"
+                }
+                return "script.riscaldamento_modo_ospiti"
+              ]]]
+
+
+
 
     away_button:
       card:
