@@ -19,6 +19,16 @@ input_boolean:
   avvisi_generale_ricircolo_aria:
     name: Avvisi Ricircola aria
     icon: mdi:volume-source
+  riscaldamento_modo_ospiti:
+    name: Modalità ospiti
+    icon: mdi:account-group
+
+################################################################################
+##                  Timer
+###################################################
+timer:
+  riscaldamento_modo_ospiti:
+    duration: "00:30:00"
 
 
 template:
@@ -131,3 +141,92 @@ script:
                 | selectattr('entity_id','search','homekit')
                 | map(attribute='entity_id')
                 | list }}
+
+
+  riscaldamento_modo_ospiti:
+    sequence:
+      - service: input_boolean.turn_on
+        target:
+          entity_id: input_boolean.riscaldamento_modo_ospiti
+
+      - service: climate.set_temperature
+        data:
+          temperature: 20.5
+          hvac_mode: auto
+        target:
+          entity_id:
+            - climate.valvola_soggiorno
+            - climate.valvola_cucina
+      - service: climate.set_temperature
+        data:
+          temperature: 19.5
+          hvac_mode: auto
+        target:
+          entity_id:
+            - climate.valvola_cameretta
+
+      - service: timer.cancel
+        target:
+          entity_id: timer.riscaldamento_modo_ospiti
+      - service: timer.start
+        target:
+          entity_id: timer.riscaldamento_modo_ospiti
+
+
+  riscaldamento_modo_ospiti_off:
+    sequence:
+      - service: input_boolean.turn_off
+        target:
+          entity_id: input_boolean.riscaldamento_modo_ospiti
+      - service: timer.cancel
+        target:
+          entity_id: timer.riscaldamento_modo_ospiti
+      - service: climate.set_hvac_mode
+        data:
+          hvac_mode: auto
+        target:
+          entity_id:
+            - climate.valvola_soggiorno
+            - climate.valvola_cameretta
+            - climate.valvola_cucina
+
+###############################################################################
+#                  AUTOMATION
+###################################################
+automation:
+  - alias: "Riscaldamento modalità ospiti"
+    id: "riscaldamento_modo_ospiti"
+    trigger:
+    - platform: event
+      event_type: timer.finished
+      event_data:
+        entity_id: timer.riscaldamento_modo_ospiti
+    action:
+      - choose:
+          - conditions:
+              - alias: "Se è prima di notte"
+                condition: time
+                before: '00:30:00'
+              - condition: state
+                entity_id: input_boolean.riscaldamento_modo_ospiti
+                state: "on"
+            sequence:
+              - service: script.turn_on
+                target:
+                  entity_id: script.riscaldamento_modo_ospiti
+
+        default:
+          - service: timer.cancel
+            target:
+              entity_id: timer.riscaldamento_modo_ospiti
+
+          - service: climate.set_hvac_mode
+            data:
+              hvac_mode: auto
+            target:
+              entity_id:
+                - climate.valvola_soggiorno
+                - climate.valvola_cucina
+          - service: input_boolean.turn_off
+            target:
+              - input_boolean.riscaldamento_modo_ospiti
