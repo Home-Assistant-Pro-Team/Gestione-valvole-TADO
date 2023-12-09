@@ -216,17 +216,6 @@ automation:
                   entity_id: script.riscaldamento_modo_ospiti
 
         default:
-          - service: timer.cancel
+          - service: script.turn_on
             target:
-              entity_id: timer.riscaldamento_modo_ospiti
-
-          - service: climate.set_hvac_mode
-            data:
-              hvac_mode: auto
-            target:
-              entity_id:
-                - climate.valvola_soggiorno
-                - climate.valvola_cucina
-          - service: input_boolean.turn_off
-            target:
-              - input_boolean.riscaldamento_modo_ospiti
+              entity_id: script.riscaldamento_modo_ospiti_off
