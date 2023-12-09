@@ -164,6 +164,7 @@ script:
         target:
           entity_id:
             - climate.valvola_cameretta
+            - climate.valvola_studio
 
       - service: timer.cancel
         target:
@@ -185,37 +186,53 @@ script:
         data:
           hvac_mode: auto
         target:
-          entity_id:
-            - climate.valvola_soggiorno
-            - climate.valvola_cameretta
-            - climate.valvola_cucina
+          entity_id: >-
+            {{ (states.climate)
+                | selectattr('entity_id','search','valvola')
+                | rejectattr('entity_id','search','homekit')
+                | map(attribute='entity_id')
+                | list }}
 
 ###############################################################################
 #                  AUTOMATION
 ###################################################
 automation:
   - alias: "Riscaldamento modalità ospiti"
-    id: "riscaldamento_modo_ospiti"
+    id: "riscaldamento_modalità_ospiti"
     trigger:
-    - platform: event
-      event_type: timer.finished
-      event_data:
-        entity_id: timer.riscaldamento_modo_ospiti
+      - platform: event
+        event_type: timer.finished
+        event_data:
+          entity_id: timer.riscaldamento_modo_ospiti
     action:
       - choose:
           - conditions:
-              - alias: "Se è prima di notte"
-                condition: time
-                before: '00:30:00'
-              - condition: state
+              - alias: "Ripeti"
+                condition: state
                 entity_id: input_boolean.riscaldamento_modo_ospiti
                 state: "on"
             sequence:
               - service: script.turn_on
                 target:
                   entity_id: script.riscaldamento_modo_ospiti
+      - choose:
+          - conditions:
+              - alias: "Ripeti"
+                condition: state
+                entity_id: input_boolean.riscaldamento_modo_ospiti
+                state: "off"
+            sequence:
+              - service: script.turn_on
+                target:
+                  entity_id: script.riscaldamento_modo_ospiti_off
 
-        default:
-          - service: script.turn_on
-            target:
-              entity_id: script.riscaldamento_modo_ospiti_off
+
+  - alias: "Riscaldamento modalità ospiti_off"
+    id: "riscaldamento_modalità_ospiti_off"
+    trigger:
+      - platform: time
+        at: "00:30:00"
+    action:
+      - service: script.turn_on
+        target:
+          entity_id: script.riscaldamento_modo_ospiti_off
