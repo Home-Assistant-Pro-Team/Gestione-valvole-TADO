@@ -86,7 +86,7 @@ automation:
         - alias: "Modalita ospite"
           conditions:
             - condition: template
-              value_template: "{{ states('sensor.numero_valvole_accese') | int > 0 }}"
+              value_template: "{{ states('sensor.numero_valvole_accese') | int > 0 and is_state('input_boolean.modo_ospite','off') }}"
           sequence:
             - service: input_boolean.turn_on
               data:
