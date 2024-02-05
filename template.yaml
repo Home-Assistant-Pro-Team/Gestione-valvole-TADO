@@ -1,3 +1,16 @@
+border-bottom:
+  template: no_background
+  styles:
+    card:
+      - height: 0px
+      - padding: 0px
+      - border-bottom: 2px solid
+      - border-bottom-color: "#4a4a4a"
+      - margin-bottom: '[[[ return variables.margin_bottom + "px" ]]]'
+      - margin-top: '[[[ return variables.margin_top + "px" ]]]'
+  tap_action:
+    action: none
+    
 no_background:
   styles:
     card:
