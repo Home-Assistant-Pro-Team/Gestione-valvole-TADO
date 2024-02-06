@@ -159,12 +159,20 @@ card_valvole:
                 return "block";
               return "none";
             ]]]
-
+      ospiti:
+        - position: absolute
+        - left: 81px
+        - top: 27%
+        - display: |
+            [[[
+              if (states['input_boolean.riscaldamento_modo_ospiti'].state == 'on')
+                return "block";
+              return "none";
+            ]]]
       umidita:
         - position: absolute
         - left: 54px
         - top: 127px
-
       turn_on:
         - position: absolute
         - left: 77px
@@ -175,6 +183,11 @@ card_valvole:
                 return "block";
               return "none";
             ]]]
+      graph:
+        - position: absolute
+        - left: 220px
+        - top: 12%
+
       power:
         - position: absolute
         - left: 5px
@@ -207,10 +220,7 @@ card_valvole:
         - position: absolute
         - left: 84%
         - top: 140px
-      graph:
-        - position: absolute
-        - left: 220px
-        - top: 12%
+
       finestra:
         - position: absolute
         - top: -5px
@@ -255,7 +265,6 @@ card_valvole:
 
     temperatura_impostata: >
       [[[ return entity.attributes.temperature ]]]
-#      [[[ return states['climate.valvola_' + variables.stanza + '_homekit'].attributes.temperature ]]]
     away:
       card:
         type: custom:button-card
@@ -298,6 +307,24 @@ card_valvole:
         tap_action:
           action: none
 
+    ospiti:
+      card:
+        type: custom:button-card
+        template: no_background
+        entity: input_boolean.riscaldamento_modo_ospiti
+        icon: mdi:account-multiple
+        show_name: false
+        color: red
+        size: 100%
+        styles:
+          card:
+            - height: 27px
+            - width: 27px
+            - border: none
+          icon:
+            - color: DarkOrange
+            - animation: blink 2000ms step-start infinite
+
     turn_on:
       card:
         type: custom:button-card
@@ -313,6 +340,65 @@ card_valvole:
           icon:
             - color: orange
 
+    graph:
+      card:
+        type: custom:apexcharts-card
+        graph_span: 24h
+        update_interval: 5m
+        yaxis:
+          - id: valvole
+            min: 0
+            max: 100
+            decimals: 0
+            opposite: false
+            apex_config:
+              tickAmount: 4
+          - id: temperatura
+            decimals: 1
+            opposite: true
+            apex_config:
+              tickAmount: 4
+        span:
+          start: day
+        apex_config:
+          legend:
+            show: false
+          chart:
+            height: 120px
+        header:
+          show: false
+        series:
+          - entity: "[[[ return 'sensor.valvola_' + variables.stanza + '_trv';  ]]]"
+            type: column
+            color: Orange
+            stroke_width: 3
+            yaxis_id: valvole
+            fill_raw: last
+            group_by:
+              func: avg
+
+          - entity: "[[[ return variables.temperatura_ambinete ]]]"
+            color: OrangeRed
+            yaxis_id: temperatura
+            fill_raw: last
+            type: area
+            stroke_width: 2
+            opacity: 0.3
+            curve: stepline
+
+          - entity: "sensor.casa_temperatura_esterna"
+            color: black
+            fill_raw: last
+            type: area
+            yaxis_id: temperatura
+            stroke_width: 2
+            opacity: 0.6
+        card_mod:
+          style: |
+            ha-card {
+              background: none;
+              border: 0px;
+            }
     power:
       card:
         type: custom:button-card
@@ -511,65 +597,7 @@ card_valvole:
             - padding-bottom: 5px
         tap_action:
           action: none
-    graph:
-      card:
-        type: custom:apexcharts-card
-        graph_span: 24h
-        update_interval: 5m
-        yaxis:
-          - id: valvole
-            min: 0
-            max: 100
-            decimals: 0
-            opposite: false
-            apex_config:
-              tickAmount: 4
-          - id: temperatura
-            decimals: 1
-            opposite: true
-            apex_config:
-              tickAmount: 4
-        span:
-          start: day
-        apex_config:
-          legend:
-            show: false
-          chart:
-            height: 120px
-        header:
-          show: false
-        series:
-          - entity: "[[[ return 'sensor.valvola_' + variables.stanza + '_trv';  ]]]"
-            type: column
-            color: Orange
-            stroke_width: 3
-            yaxis_id: valvole
-            fill_raw: last
-            group_by:
-              func: avg
 
-          - entity: "[[[ return variables.temperatura_ambinete ]]]"
-            color: OrangeRed
-            yaxis_id: temperatura
-            fill_raw: last
-            type: area
-            stroke_width: 2
-            opacity: 0.3
-            curve: stepline
-
-          - entity: "sensor.casa_temperatura_esterna"
-            color: black
-            fill_raw: last
-            type: area
-            yaxis_id: temperatura
-            stroke_width: 2
-            opacity: 0.6
-        style: |
-          ha-card {
-            --ha-card-background: "rgba(0, 0, 0, 0.0)";
-              width: 290px;
-            border: 0px
-          }
     finestra:
       card:
         type: custom:button-card
