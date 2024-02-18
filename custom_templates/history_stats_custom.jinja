@@ -14,7 +14,20 @@
 
 {# Tempo di utilizzo da passare ad utility_meter #}
 {% macro time_on(entity_id) %}
-  {{ (as_timestamp(now()) - as_timestamp(states[entity_id].last_changed)) / 3600 if not is_state(entity_id, ['off', 'unavailable', 'unknown']) and states[entity_id].last_changed is defined else 0 }}
+  {% if not is_state(entity_id, ['off', 'unavailable', 'unknown']) and states[entity_id].last_changed is defined %}
+    {{ (as_timestamp(now()) - as_timestamp(states[entity_id].last_changed)) / 3600 }}
+  {% else %}
+    0
+  {% endif %}
+{% endmacro %}
+
+{# Tempo di utilizzo da passare ad utility_meter con stato #}
+{% macro sensor_time_on(entity_id, state) %}
+  {% if is_state(entity_id, state) and states[entity_id].last_changed is defined %}
+    {{ (as_timestamp(now()) - as_timestamp(states[entity_id].last_changed)) / 3600 }}
+  {% else %}
+    0
+  {% endif %}
 {% endmacro %}
 
 {# converte tempo di utility_meter in un modo più amichevole #}
@@ -28,7 +41,7 @@
   {% elif hours > 0 %}
     {{ hours }}h {{ minutes }}m
   {% else %}
-    {{ minutes }} min
+    {{ minutes }}min
   {% endif %}
 {% endmacro %}
 
