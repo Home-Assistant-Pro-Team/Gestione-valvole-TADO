@@ -103,4 +103,7 @@ Grazie di cuore per il tuo sostegno!
 `- Version: 1.1 -` 
 
 Aggiunta gestione ospiti 
-https://github.com/Home-Assistant-Pro-Team/Gestione-valvole-TADO/blob/main/temp/Screenshot%202024-02-18%20alle%2011.39.00.png
+<img width="407" alt="Screenshot 2024-02-18 alle 11 39 00" src="https://github.com/Home-Assistant-Pro-Team/Gestione-valvole-TADO/assets/48358142/7d9fb66c-8973-48c5-8be4-2a21507f3d8d">
+
+
+
