@@ -129,6 +129,10 @@ script:
               | list
               | first }}
 
+      - service: automation.turn_off
+        target:
+          entity_id: automation.avviso_riscaldamento_acceso
+
   power_off_valvole:
     sequence:
       - service: climate.set_hvac_mode
