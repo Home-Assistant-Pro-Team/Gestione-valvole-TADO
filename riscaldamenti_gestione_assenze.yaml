@@ -54,11 +54,10 @@ automation:
   trigger:
     - platform: template
       value_template: "{{ states('sensor.numero_valvole_accese') | int > 0 }}"
-    - platform: state 
+    - platform: state
       entity_id: group.famiglia
       from: "home"
       to: "not_home"
-
   condition:
     - condition: template
       value_template: >
@@ -69,7 +68,6 @@ automation:
         {{ state_attr(valvola, 'preset_mode') == 'home' }}
     - condition: template
       value_template: "{{ states('group.famiglia') != 'home'}}"
-      
   action:
     - choose:
         - alias: "Modalita ospite"
@@ -83,7 +81,7 @@ automation:
                 title: 'Attenzione'
                 message: Il riscaldamento rimarrà acceso perchè la modalità ospite è attiva.
     - choose:
-        - alias: "Modalita ospite"
+        - alias: "NO ospite"
           conditions:
             - condition: template
               value_template: "{{ states('sensor.numero_valvole_accese') | int > 0 and is_state('input_boolean.modo_ospite','off') }}"
@@ -95,6 +93,29 @@ automation:
         - service: input_boolean.turn_on
           data:
             entity_id: input_boolean.riscaldamenti_accesi
+
+- alias: "Ferma Avviso riscaldamento"
+  id: ferma_avviso_riscaldamenti_accesi
+  initial_state: true
+  trigger:
+    - platform: state
+      entity_id: group.famiglia
+      from: "not_home"
+      to: "home"
+  action:
+    - service: input_boolean.turn_off
+      data:
+        entity_id: input_boolean.riscaldamenti_accesi
+
+    - service: automation.turn_on
+      target:
+        entity_id: automation.avviso_riscaldamento_acceso
+
+    - service: notify.famiglia
+      data:
+        message: clear_notification
+        data:
+          tag: spegni_termosifoni
 
 - alias: "Accensione Termosifoni al rientro"
   id: accensione_termosifoni_al_rientro
