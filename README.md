@@ -98,3 +98,9 @@ I fondi raccolti saranno utilizzati per acquistare nuovo materiale e realizzare 
 Grazie di cuore per il tuo sostegno!
 
 [![ko-fi](https://ko-fi.com/img/githubbutton_sm.svg)](https://ko-fi.com/M4M1MI00I)
+
+
+`- Version: 1.1 -` 
+
+Aggiunta gestione ospiti 
+https://github.com/Home-Assistant-Pro-Team/Gestione-valvole-TADO/blob/main/temp/Screenshot%202024-02-18%20alle%2011.39.00.png
