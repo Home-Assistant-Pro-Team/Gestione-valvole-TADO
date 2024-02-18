@@ -16,7 +16,7 @@ Progetto originariamente neto per la gestione delle riscaldamento con Netatmo e 
 ![setting_info](https://github.com/Home-Assistant-Pro-Team/Gestione-valvole-TADO/assets/48358142/50d91c58-2726-470a-8615-275f897da8ec)
 
 ## Prerequisiti:
-- File history_stat_custom.jinja presente nella cartella custom_templates. (Se non c'è, create la cartella custom_templates nella root principale di HA e poi copiate il file history_stat_custom.jinja. Riavviate HA.
+- File history_stat_custom.jinja e history_stat.jinja presente nella cartella custom_templates. (Se non c'è, create la cartella custom_templates nella root principale di HA e poi copiate il file history_stat_custom.jinja. Riavviate HA.
 - Ogni valvola dovrà essere chiamata climate.valvola_NOMEDELLASTANZA es climate.valvola_soggiorno
 - Gruppo famiglia esistente
 - Browser_mod
