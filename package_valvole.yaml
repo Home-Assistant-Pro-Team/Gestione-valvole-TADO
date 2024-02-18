@@ -1,8 +1,8 @@
 homeassistant:
   customize:
     package.node_anchors:
-      Sensore Finestra: &sensore_finestra binary_sensor.finestra_cucina_contact
-      Valvola: &valvola climate.valvola_cucina
+        Sensore Finestra: &sensore_finestra binary_sensor.finestra_cucina_contact
+        Valvola: &valvola climate.valvola_cucina
 
 ################################################################################
 ##                  Recorder
@@ -17,16 +17,16 @@ recorder:
 ################################################
 input_text:
   apertura_finestra_cucina:
-    name: Cambio stato finestra Cucina
+    name: Cambio stato finestra cucina
   counter_finestra_cucina:
-    name: Cambio stato counter finestra Cucina
+    name: Cambio stato counter finestra cucina
 
 ################################################################################
 ##                  input_boolean
 ################################################
 input_boolean:
   valvola_cucina_notifica_vocale_finestra_aperta:
-    name: Valvola Cucina Avviso vocale
+    name: Valvola cucina Avviso vocale
     icon: mdi:circle-slice-8
   valvola_cucina_notifica_true_temperature:
     name: Valvola cucina Avviso differenza True Temperature
@@ -91,7 +91,7 @@ utility_meter:
 ################################################
 template:
   - binary_sensor:
-      - name: Valvola Cucina
+      - name: Valvola cucina
         icon: mdi:circle-double
         state: "{{ state_attr('climate.valvola_cucina' ,'hvac_action') == 'heating' }}"
 
@@ -99,7 +99,7 @@ template:
 ##                  Sensor
 ################################################
   - sensor:
-      - name: Stato Valvola Cucina
+      - name: Stato Valvola cucina
         unique_id: stato_valvola_cucina
         state: >-
           {{ state_attr('climate.valvola_cucina','preset_mode') }}
@@ -147,11 +147,11 @@ template:
 
       - name: "Last change finestra cucina info"
         unique_id: last_change_finestra_cucina_info
-        state: >-
+        state: >
           {{ states('input_text.apertura_finestra_cucina')|int | timestamp_custom('%d/%m/%Y - %H:%M',true) }}
 
       - name: "Ricircolo aria cucina"
-        unique_id: 71bc6bc43fa8736af58e9fd81ae5984b
+        unique_id: ricircolo_aria_cucina
         state: >-
           {% set var = states('input_text.counter_finestra_cucina') %}
             {% if var != 'unknown' %}
@@ -185,18 +185,18 @@ template:
             {% endif %}
         icon: mdi:cached
 
-      - name: "Valvola Cucina True Temperature"
+      - name: "Valvola cucina True Temperature"
         unique_id: valvola_cucina_true_temperature
         state: >
-          {{(state_attr('climate.valvola_cucina','current_temperature') |float(0) ) - (states('sensor.temperatura_cucina') |float(0) ) |int }}
+          {{(state_attr('climate.valvola_cucina','current_temperature') |float(0) ) - (states('sensor.temperatura_cucina') |float(0) ) |int}}
 
 ################################################################################
 ##                  AUTOMATION
 ###################################################
 automation:
   - alias: "Conteggio apertura finestra cucina"
+    id: conteggio_apertura_finestra_cucina
     mode: parallel
-    id: 08925f856dd29da3a935090a7683c750
     initial_state: true
     trigger:
       - platform: state
@@ -254,7 +254,7 @@ automation:
                   entity_id: counter.finestra_cucina
 
   - alias: "Valvola cucina gestione finestra"
-    id: 6ad9de478ac0da56e36366239490423a
+    id: valvola_cucina_gestione_finestra
     initial_state: true
     mode: parallel
     trigger:
@@ -374,40 +374,23 @@ automation:
                   tag: "valvola_cucina_apertura"
                   group: "valvola_cucina"
 
-  - alias: "Pulizia notifiche valvola cucina"
-    id: 25b7cd4b40e1ccc43aa4ca68f9cff22c
-    trigger:
-      - platform: state
-        entity_id: *sensore_finestra
-        from: "on"
-        to: "off"
-    action:
-      - service: notify.mobile_app_francesco
-        data:
-          message: "clear_notification"
-          data:
-            tag: "valvola_cucina_apertura"
-      - service: notify.mobile_app_iphone_di_simona
-        data:
-          message: "clear_notification"
-          data:
-            tag: "valvola_cucina_apertura"
-
   - alias: "Avviso disconnessione valvola cucina"
-    id: 4e0ee25eec1e130b36f6b8343287e9cd
+    id: avviso_disconnessione_valvola_cucina
     initial_state: true
     trigger:
       - platform: state
         entity_id: *valvola
         to: "unavailable"
     action:
-      - service: !secret notifiche_francesco
+      - service: script.multinotify
         data:
-          title: 'Attenzione'
+          notify_app: !secret notifiche_francesco
+          title: "Valvola cucina"
           message: Valvola cucina disconnessa.
+          group: "valvola_cucina"
 
   - alias: "Avviso True Temperature valvola cucina"
-    id: c4ead12c82173cf45afbdb25a6ae92d7
+    id: avviso_true_temperature_valvola_cucina
     initial_state: true
     trigger:
       - platform: numeric_state
@@ -432,14 +415,14 @@ automation:
           tag: "true_temperature"
 
   - alias: "Notifica Batteria scarica valvola cucina"
-    id: 0bf8d471ea06b80a53980a78b8b73afd
+    id: notifica_batteria_scarica_valvola_cucina
     initial_state: true
     trigger:
       - platform: template
         value_template: >-
           {{is_state('binary_sensor.valvola_cucina_batteria', 'on') }}
         for:
-          minutes: 1
+          minutes: 5
     action: # SERVIZIO DI NOTIFICA
       - service: script.multinotify
         data:
@@ -506,3 +489,22 @@ automation:
                         "Forse hai dimenticato di aprire in cucina, sono passate 10 ore da l'ultima volta"] | random}}
                   alexa_target: media_player.in_casa
                   alexa_force: true
+
+  - alias: "Pulizia notifiche valvola cucina"
+    id: pulizia_notifiche_valvola_cucina
+    trigger:
+      - platform: state
+        entity_id: *sensore_finestra
+        from: "on"
+        to: "off"
+    action:
+      - service: notify.mobile_app_francesco
+        data:
+          message: "clear_notification"
+          data:
+            tag: "valvola_cucina_apertura"
+      - service: notify.mobile_app_iphone_di_simona
+        data:
+          message: "clear_notification"
+          data:
+            tag: "valvola_cucina_apertura"
