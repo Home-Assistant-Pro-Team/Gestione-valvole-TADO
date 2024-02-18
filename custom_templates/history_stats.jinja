@@ -1,0 +1,63 @@
+# converte tempo di utility_meter in un modo più amichevole
+
+{% macro history(entity_id) %}
+  {% set time = entity_id | float(0) %}
+  {% set minutes = ((time % 1) * 60) | int(0) %}
+  {% set hours = (time - (time % 1)) | int(0) %}
+  {% set day = (hours // 24) | int(0) %}
+  {% if day > 0 %}
+    {{ day }}d {{ (hours - (day * 24)) }}h {{ minutes }}m
+  {% elif hours > 0 %}
+    {{ hours }}h {{ minutes }}m
+  {% else %}
+    {{ minutes }} min
+  {% endif %}
+{% endmacro %}
+
+
+
+
+{% macro history_valvola(entity_id) %}
+  {%- set var = states('var.apertura_finestra_studio') |int %}
+  {%- set time = (as_timestamp(now()) - var) | int  %}
+  {%- set minuti = ((time % 3600) // 60) %}
+  {% if minuti > 9 %}
+    {%- set minuti = ':{}'.format(minuti) %}
+  {% elif  minuti < 10 %}
+    {%- set minuti = ':0{}'.format(minuti) %}
+  {% else %}
+    {%- set minuti = '' %}
+  {% endif %}
+  {%- set ore = ((time % 86400) // 3600) %}
+  {% if ore > 9 %}
+    {%- set ore = '{}:'.format(ore) %}
+  {% elif  ore < 10 %}
+    {%- set ore = '0{}'.format(ore) %}
+  {% else %}
+    {%- set ore = '' %}
+  {% endif %}
+  {{ 'Poco fa' if time < 60 else ore + minuti }}
+{% endmacro %}
+
+
+
+# Visualizzo tempo istantaneo lasciando il print da spento
+
+{% macro last_use(start, end, binary) %}
+  {% if states(binary) not in ['off', 'unavailable', 'unknown'] %}
+    {% set times = (as_timestamp(now()) - states(start) | float(0)) %}
+  {% else %}
+    {% set times = (state_attr(end, 'time') | float(0)  - states(start) | float(0)) %}
+  {% endif %}
+  {{ times | timestamp_custom("%-Hh %-Mm" if times // 3600 > 0 else "%-Mm", false) }}
+{% endmacro %}
+
+# tempo di utilizzo in sec da passare ad utility_meter
+
+{% macro time_on(entity_id) %}
+  {% if not is_state(entity_id, ['off', 'unavailable', 'unknown']) and states[entity_id].last_changed is defined %}
+    {{ ( as_timestamp(now()) - as_timestamp(states[entity_id].last_changed) ) / 3600 }}
+  {% else %}
+    0
+  {% endif %}
+{% endmacro %}
