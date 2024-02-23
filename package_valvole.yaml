@@ -148,7 +148,14 @@ template:
       - name: "Last change finestra cucina info"
         unique_id: last_change_finestra_cucina_info
         state: >
-          {{ states('input_text.apertura_finestra_cucina')|int | timestamp_custom('%d/%m/%Y - %H:%M',true) }}
+          {% set sensor_date = states('input_text.apertura_finestra_cucina')|int | timestamp_custom('%d/%m/%Y',true) %}
+          {% if sensor_date == now().strftime('%d/%m/%Y') %}
+            Oggi alle {{states('input_text.apertura_finestra_cucina')|int | timestamp_custom('%H:%M',true)}}
+          {% elif sensor_date == (now() - timedelta(days=1)).strftime('%d/%m/%Y') %}
+            Ieri alle {{states('input_text.apertura_finestra_cucina')|int | timestamp_custom('%H:%M',true)}}
+          {% else %}
+            Il {{ states('input_text.apertura_finestra_cucina')|int | timestamp_custom('%d/%m/%Y') }} alle {{ states('input_text.apertura_finestra_cucina')|int | timestamp_custom('%H:%M') }}
+          {% endif %}
 
       - name: "Ricircolo aria cucina"
         unique_id: ricircolo_aria_cucina
