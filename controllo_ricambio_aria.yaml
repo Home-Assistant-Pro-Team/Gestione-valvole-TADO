@@ -1,0 +1,79 @@
+################################################################################
+##                  Script
+###################################################
+script:
+  info_finestra:
+    alias: "Info finestra"
+    sequence:
+      - service: alexa_media.update_last_called
+      - delay:
+          milliseconds: 500
+      - service: notify.alexa_media
+        data:
+          message: >
+            {% set echo = expand(integration_entities('alexa_media')
+              | select('search', 'media_player'))
+              | selectattr('attributes.last_called', 'eq', True)
+              | map(attribute='entity_id')
+              | first  %}
+            {% set R1 = "{{ states('sensor.last_change_finestra_" %}
+            {% set R2 = "_info') }}" %}
+            {% set R3 = 'sensor.last_change_finestra_' + area_id(echo) + '_info' %}
+            {%- set volte =  state_attr(R3,'Aperture') -%}
+            {%- if volte == 0  -%}
+              Ultima volta {{ states(R3) }}
+            {%- elif volte == 1  -%}
+              {{ state_attr(R3,'Aperture') }} Volta {{ states(R3) }}
+            {%- else %}
+              {{ state_attr(R3,'Aperture') }} Volte {{ states(R3) }}
+            {%- endif -%}
+          target: >
+            {{ expand(integration_entities('alexa_media')
+              | select('search', 'media_player'))
+              | selectattr('attributes.last_called', 'eq', True)
+              | map(attribute='entity_id')
+              | first }}
+              
+  info_finestre_da_aprire:
+    alias: "Info finestre da aprire"
+    sequence:
+      - service: alexa_media.update_last_called
+      - delay:
+          milliseconds: 500
+      - service: notify.alexa_media
+        data:
+          message: >
+            {% set finestre = expand(states.sensor)
+              | selectattr('entity_id', 'search', 'last_change_finestra_')
+              | selectattr('entity_id', 'search', 'info')
+              | selectattr('attributes.Aperture', 'eq', 0)
+              | map(attribute='entity_id')
+              | map('replace', 'sensor.last_change_finestra', 'finestra ')
+              | map('replace', '_', '')
+              | map('replace', 'info', '')
+              | list %}
+
+            {% set finestre2 = expand(states.sensor)
+              | selectattr('entity_id', 'search', 'last_change_finestra_')
+              | selectattr('entity_id', 'search', 'info')
+              | rejectattr('attributes.Aperture', 'eq', 0)
+              | map(attribute='entity_id')
+              | map('replace', 'sensor.last_change_finestra', 'finestra ')
+              | map('replace', '_', '')
+              | map('replace', 'info', '')
+              | list %}
+            {%- if (finestre | count == 5)  -%}
+              Tutte
+            {%- elif ( 3 > finestre2 | count >= 1)  -%}
+              Tutte tranne {{ finestre2| join(', ') | regex_replace(',([^,]*)$',' e\\1')  }}
+            {%- elif ( 3 > finestre | count >= 1)  -%}
+              {{ finestre| join(', ') | regex_replace(',([^,]*)$',' e\\1')  }}
+            {%- else %}
+              Nessuna
+            {%- endif -%}
+          target: >
+            {{ expand(integration_entities('alexa_media')
+              | select('search', 'media_player'))
+              | selectattr('attributes.last_called', 'eq', True)
+              | map(attribute='entity_id')
+              | first }}
