@@ -156,6 +156,8 @@ template:
           {% else %}
             Il {{ states('input_text.apertura_finestra_cucina')|int | timestamp_custom('%d/%m/%Y') }} alle {{ states('input_text.apertura_finestra_cucina')|int | timestamp_custom('%H:%M') }}
           {% endif %}
+        attributes:
+          Aperture: "{{ states('counter.finestra_cucina')|int }}"
 
       - name: "Ricircolo aria cucina"
         unique_id: ricircolo_aria_cucina
@@ -358,9 +360,9 @@ automation:
                         {{["La finestra della cucina è ormai aperta da " ~ tempo ~ "minuti",
                             "Sono passati già " ~ tempo ~ " minuti da quando hai aperto la finestra della cucina!",
                             "Penso che " ~ tempo ~ " minuti possano bastare. Ora puoi chiudere la finestra della cucina",
-                            "Hey, che ne dici di chiudere la finestra della cucina?  è aperta da " ~ tempo ~ " minuti",
+                            "Hey che ne dici di chiudere la finestra della cucina?  è aperta da " ~ tempo ~ " minuti",
                             "Forse hai dimenticato di aver aperto al finestra della cucina. L'hai aperta " ~ tempo ~ " minuti fa!",
-                            "Hey," ~ tempo ~ " minuti sono passati. Che ne dici di chiudere la finestra della cucina? "] | random}}
+                            "Hey" ~ tempo ~ " minuti sono passati. Che ne dici di chiudere la finestra della cucina? "] | random}}
                       alexa_target: media_player.in_casa
                       alexa_force: true
                       group: "valvola_cucina"
@@ -375,9 +377,9 @@ automation:
                     {{["La finestra della cucina è ormai aperta da " ~ tempo ~ "minuti",
                         "Sono passati già " ~ tempo ~ " minuti da quando hai aperto la finestra della cucina!",
                         "Penso che " ~ tempo ~ " minuti possano bastare. Ora puoi chiudere la finestra della cucina",
-                        "Hey, che ne dici di chiudere la finestra della cucina?  è aperta da " ~ tempo ~ " minuti",
+                        "Hey che ne dici di chiudere la finestra della cucina?  è aperta da " ~ tempo ~ " minuti",
                         "Forse hai dimenticato di aver aperto al finestra della cucina. L'hai aperta " ~ tempo ~ " minuti fa!",
-                        "Hey," ~ tempo ~ " minuti sono passati. Che ne dici di chiudere la finestra della cucina? "] | random}}
+                        "Hey" ~ tempo ~ " minuti sono passati. Che ne dici di chiudere la finestra della cucina? "] | random}}
                   tag: "valvola_cucina_apertura"
                   group: "valvola_cucina"
 
@@ -491,7 +493,7 @@ automation:
                   title: "Valvola cucina"
                   message: >
                     {{["La finestra della cucina non viene aperta da 10 ore",
-                        "Sono passate più di 10 ore da quando è stata cambita l'aria in cucina",
+                        "Sono passate più di 10 ore da quando è stata cambiata l'aria in cucina",
                         "Potresti cambiare l'aria in cucina? Non viene fatto da 10 ore",
                         "Forse hai dimenticato di aprire in cucina, sono passate 10 ore da l'ultima volta"] | random}}
                   alexa_target: media_player.in_casa
