@@ -107,8 +107,8 @@ Aggiunta gestione ospiti
 `- Version: 1.2 -` 
 
 
-- Perfezionato sensore "Last change finestra cucina info" che ora mostra la data se è più vecchia di 2 giorni, altrimenti restituisce la parola "Oggi" o "Ieri"
-- Aggiunto attributo Aperture a "Last change finestra cucina info"
+- Perfezionato sensore "Last change finestra XXXX info" che ora mostra la data se è più vecchia di 2 giorni, altrimenti restituisce la parola "Oggi" o "Ieri"
+- Aggiunto attributo Aperture a "Last change finestra XXXXX info"
 - Aggiunti due scritp:
   -  info_finestra: che se eposto verso alexa, permette di poter chiedere "Quando è stata cambiata l'aria qui" e il dot risponderà con il dato corretto per la stanza in cui si trova
   -  info_finestre_da_aprire: che se eposto verso alexa, permette di poter chiedere "In quali stanza si deve cambiare l'aria?" e alexa elenchera in modo dinamico le stanza che ancora devno a vere un ricambio d'aria usando delle frasi diverse in base al numero di elementi da elencare. Es: Tutte, solo questa, tutte tranne queste, nessuna, ecc.
