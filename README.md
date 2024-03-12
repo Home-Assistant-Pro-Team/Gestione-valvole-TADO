@@ -1,11 +1,10 @@
-`- Version: 1.0 -` 
 ### **Supportaci**
 Se apprezzi questo progetto, ci piacerebbe avere il tuo supporto, anche con un semplice caffè. 
 I fondi raccolti saranno utilizzati per acquistare nuovo materiale e realizzare nuovi progetti. Puoi contribuire cliccando sul pulsante qui sotto. 
 Grazie di cuore per il tuo sostegno!
-
 [![ko-fi](https://ko-fi.com/img/githubbutton_sm.svg)](https://ko-fi.com/M4M1MI00I)
 
+`- Version: 1.0 -` 
 # Gestione valvole termostatiche TADO
 Progetto originariamente neto per la gestione delle riscaldamento con Netatmo e successivamente modificato per Tado.
 <img width="1148" alt="generale" src="https://github.com/Home-Assistant-Pro-Team/Gestione-valvole-TADO/assets/48358142/085b1c7c-2761-4e3e-97a7-48c3023011ac">
@@ -92,18 +91,43 @@ dopo aver soddisfattto i prerequisiti,
 
 Tutti i file di esempio sono redatti sulla mia camera studio, di conseguenza, vi baseterà in ogni file cercare la parola "studio" per trovare tutte le righe da editare con le vostre entità.
 
+
+
+
+`- Version: 1.1 -` 
+
+
+
+Aggiunta gestione ospiti 
+
+<img width="407" alt="Screenshot 2024-02-18 alle 11 39 00" src="https://github.com/Home-Assistant-Pro-Team/Gestione-valvole-TADO/assets/48358142/7d9fb66c-8973-48c5-8be4-2a21507f3d8d">
+
+
+
+`- Version: 1.2 -` 
+
+
+- Perfezionato sensore "Last change finestra cucina info" che ora mostra la data se è più vecchia di 2 giorni, altrimenti restituisce la parola "Oggi" o "Ieri"
+- Aggiunto attributo Aperture a "Last change finestra cucina info"
+- Aggiunti due scritp:
+  -  info_finestra: che se eposto verso alexa, permette di poter chiedere "Quando è stata cambiata l'aria qui" e il dot risponderà con il dato corretto per la stanza in cui si trova
+  -  info_finestre_da_aprire: che se eposto verso alexa, permette di poter chiedere "In quali stanza si deve cambiare l'aria?" e alexa elenchera in modo dinamico le stanza che ancora devno a vere un ricambio d'aria usando delle frasi diverse in base al numero di elementi da elencare. Es: Tutte, solo questa, tutte tranne queste, nessuna, ecc.
+nel file di esempio le finestre considerate sono 5, potete modificare le quantità qui, modificando il 5 e i due 3
+
+            {%- if (finestre | count == 5)  -%}
+              Tutte
+            {%- elif ( 3 > finestre2 | count >= 1)  -%}
+              Tutte tranne {{ finestre2| join(', ') | regex_replace(',([^,]*)$',' e\\1')  }}
+            {%- elif ( 3 > finestre | count >= 1)  -%}
+              {{ finestre| join(', ') | regex_replace(',([^,]*)$',' e\\1')  }}
+            {%- else %}
+              Nessuna
+            {%- endif -%}
+
+
 ### **Supportaci**
 Se apprezzi questo progetto, ci piacerebbe avere il tuo supporto, anche con un semplice caffè. 
 I fondi raccolti saranno utilizzati per acquistare nuovo materiale e realizzare nuovi progetti. Puoi contribuire cliccando sul pulsante qui sotto. 
 Grazie di cuore per il tuo sostegno!
 
 [![ko-fi](https://ko-fi.com/img/githubbutton_sm.svg)](https://ko-fi.com/M4M1MI00I)
-
-
-`- Version: 1.1 -` 
-
-Aggiunta gestione ospiti 
-<img width="407" alt="Screenshot 2024-02-18 alle 11 39 00" src="https://github.com/Home-Assistant-Pro-Team/Gestione-valvole-TADO/assets/48358142/7d9fb66c-8973-48c5-8be4-2a21507f3d8d">
-
-
-
