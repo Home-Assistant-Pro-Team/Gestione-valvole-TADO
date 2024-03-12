@@ -110,8 +110,8 @@ Aggiunta gestione ospiti
 - Perfezionato sensore "Last change finestra XXXX info" che ora mostra la data se è più vecchia di 2 giorni, altrimenti restituisce la parola "Oggi" o "Ieri"
 - Aggiunto attributo Aperture a "Last change finestra XXXXX info"
 - Aggiunti due scritp:
-  -  info_finestra: che se eposto verso alexa, permette di poter chiedere "Quando è stata cambiata l'aria qui" e il dot risponderà con il dato corretto per la stanza in cui si trova
-  -  info_finestre_da_aprire: che se eposto verso alexa, permette di poter chiedere "In quali stanza si deve cambiare l'aria?" e alexa elenchera in modo dinamico le stanza che ancora devno a vere un ricambio d'aria usando delle frasi diverse in base al numero di elementi da elencare. Es: Tutte, solo questa, tutte tranne queste, nessuna, ecc.
+  -  info_finestra: che se esposto verso alexa, permette di poter chiedere "Quando è stata cambiata l'aria qui" e il dot risponderà con il dato corretto per la stanza in cui si trova.
+  -  info_finestre_da_aprire: che se eposto verso alexa, permette di poter chiedere "In quali stanza si deve cambiare l'aria?" e alexa elencherà in modo dinamico le stanza che ancora devono a vere un ricambio d'aria usando delle frasi diverse in base al numero di elementi da elencare. Es: Tutte, solo questa, tutte tranne queste, nessuna, ecc.
 nel file di esempio le finestre considerate sono 5, potete modificare le quantità qui, modificando il 5 e i due 3
 
             {%- if (finestre | count == 5)  -%}
