@@ -193,7 +193,6 @@ script:
           entity_id: >-
             {{ (states.climate)
                 | selectattr('entity_id','search','valvola')
-                | rejectattr('entity_id','search','homekit')
                 | map(attribute='entity_id')
                 | list }}
 
