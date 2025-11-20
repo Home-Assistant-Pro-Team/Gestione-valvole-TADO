@@ -3,12 +3,15 @@
 ################################################
 utility_meter:
   meter_termostato_anno:
+    unique_id: durata_riscaldamento_generale_anno
     source: sensor.durata_riscaldamento_generale
     cycle: yearly
   meter_termostato_mese:
+    unique_id: durata_riscaldamento_generale_mese
     source: sensor.durata_riscaldamento_generale
     cycle: monthly
   meter_termostato_oggi:
+    unique_id: durata_riscaldamento_generale_oggi
     source: sensor.durata_riscaldamento_generale
     cycle: daily
 
@@ -30,11 +33,10 @@ timer:
   riscaldamento_modo_ospiti:
     duration: "00:30:00"
 
-
 template:
-################################################################################
-##                  Sensor
-################################################
+  ################################################################################
+  ##                  Sensor
+  ################################################
   - binary_sensor:
       - name: "Riscaldamento Generale"
         state: >
@@ -51,10 +53,11 @@ template:
       - name: "Durata riscaldamento generale"
         unique_id: durata_riscaldamento_generale
         state: >-
-          {%if is_state('binary_sensor.riscaldamento_generale', 'on') and (as_timestamp(states.binary_sensor.riscaldamento_generale.last_changed)) <= as_timestamp(now())%}
-            {{((as_timestamp(now()) - as_timestamp(states.binary_sensor.riscaldamento_generale.last_changed))/3600) }}
+          {% if is_state('binary_sensor.riscaldamento_generale', 'on') %}
+            {% set delta = as_timestamp(now()) - as_timestamp(states.binary_sensor.riscaldamento_generale.last_changed) %}
+            {{ (delta // 3600)|int }}h {{ ((delta % 3600) // 60)|int }}m
           {% else %}
-            0
+            0h 0m
           {% endif %}
         attributes:
           Oggi: >
@@ -66,7 +69,6 @@ template:
           Anno: >-
             {% from 'history_stats.jinja' import history %}
             {{ history(states('sensor.meter_termostato_anno')) }}
-
 
       - name: "Numero Valvole Accese"
         unique_id: numero_valvole_accese
@@ -85,16 +87,16 @@ template:
 script:
   temperatura_up:
     sequence:
-    - service: climate.set_temperature
-      data:
-        temperature: >
-          {{ state_attr(climate_id, 'temperature') + 0.5 | float }}
-      target:
-        entity_id: "{{ climate_id }}"
+      - action: climate.set_temperature
+        data:
+          temperature: >
+            {{ state_attr(climate_id, 'temperature') + 0.5 | float }}
+        target:
+          entity_id: "{{ climate_id }}"
 
   temperatura_down:
     sequence:
-      - service: climate.set_temperature
+      - action: climate.set_temperature
         data:
           temperature: >
             {{ state_attr(climate_id, 'temperature') - 0.5 | float }}
@@ -103,57 +105,58 @@ script:
 
   away:
     sequence:
-      - service: climate.set_preset_mode
+      - action: climate.set_preset_mode
         data:
           preset_mode: "away"
         target:
           entity_id: >
             {{(states.climate)
               | selectattr('entity_id','search','valvola')
-              | rejectattr('entity_id','search','homekit')
               | map(attribute='entity_id')
               | list
               | first }}
 
+      - action: input_boolean.turn_off
+        target:
+          entity_id: input_boolean.riscaldamenti_accesi
+
+
   preset_mode:
     sequence:
-      - service: climate.set_preset_mode
+      - action: climate.set_preset_mode
         data:
           preset_mode: "home"
         target:
           entity_id: >
             {{(states.climate)
               | selectattr('entity_id','search','valvola')
-              | rejectattr('entity_id','search','homekit')
               | map(attribute='entity_id')
               | list
               | first }}
 
-      - service: automation.turn_off
+      - action: automation.turn_off
         target:
           entity_id: automation.avviso_riscaldamento_acceso
 
   power_off_valvole:
     sequence:
-      - service: climate.set_hvac_mode
+      - action: climate.set_hvac_mode
         data:
           hvac_mode: "off"
         target:
           entity_id: >-
             {{ (states.climate)
                 | selectattr('entity_id','search','valvola')
-                | selectattr('entity_id','search','homekit')
                 | map(attribute='entity_id')
                 | list }}
 
-
   riscaldamento_modo_ospiti:
     sequence:
-      - service: input_boolean.turn_on
+      - action: input_boolean.turn_on
         target:
           entity_id: input_boolean.riscaldamento_modo_ospiti
 
-      - service: climate.set_temperature
+      - action: climate.set_temperature
         data:
           temperature: 20.5
           hvac_mode: auto
@@ -161,7 +164,7 @@ script:
           entity_id:
             - climate.valvola_soggiorno
             - climate.valvola_cucina
-      - service: climate.set_temperature
+      - action: climate.set_temperature
         data:
           temperature: 19.5
           hvac_mode: auto
@@ -170,23 +173,22 @@ script:
             - climate.valvola_cameretta
             - climate.valvola_studio
 
-      - service: timer.cancel
+      - action: timer.cancel
         target:
           entity_id: timer.riscaldamento_modo_ospiti
-      - service: timer.start
+      - action: timer.start
         target:
           entity_id: timer.riscaldamento_modo_ospiti
-
 
   riscaldamento_modo_ospiti_off:
     sequence:
-      - service: input_boolean.turn_off
+      - action: input_boolean.turn_off
         target:
           entity_id: input_boolean.riscaldamento_modo_ospiti
-      - service: timer.cancel
+      - action: timer.cancel
         target:
           entity_id: timer.riscaldamento_modo_ospiti
-      - service: climate.set_hvac_mode
+      - action: climate.set_hvac_mode
         data:
           hvac_mode: auto
         target:
@@ -202,12 +204,12 @@ script:
 automation:
   - alias: "Riscaldamento modalità ospiti"
     id: "riscaldamento_modalità_ospiti"
-    trigger:
-      - platform: event
+    triggers:
+      - trigger: event
         event_type: timer.finished
         event_data:
           entity_id: timer.riscaldamento_modo_ospiti
-    action:
+    actions:
       - choose:
           - conditions:
               - alias: "Ripeti"
@@ -215,7 +217,7 @@ automation:
                 entity_id: input_boolean.riscaldamento_modo_ospiti
                 state: "on"
             sequence:
-              - service: script.turn_on
+              - action: script.turn_on
                 target:
                   entity_id: script.riscaldamento_modo_ospiti
       - choose:
@@ -225,17 +227,16 @@ automation:
                 entity_id: input_boolean.riscaldamento_modo_ospiti
                 state: "off"
             sequence:
-              - service: script.turn_on
+              - action: script.turn_on
                 target:
                   entity_id: script.riscaldamento_modo_ospiti_off
 
-
   - alias: "Riscaldamento modalità ospiti_off"
     id: "riscaldamento_modalità_ospiti_off"
-    trigger:
-      - platform: time
+    triggers:
+      - trigger: time
         at: "00:30:00"
-    action:
-      - service: script.turn_on
+    actions:
+      - action: script.turn_on
         target:
           entity_id: script.riscaldamento_modo_ospiti_off
