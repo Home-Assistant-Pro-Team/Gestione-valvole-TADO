@@ -4,7 +4,7 @@ I fondi raccolti saranno utilizzati per acquistare nuovo materiale e realizzare 
 Grazie di cuore per il tuo sostegno!
 [![ko-fi](https://ko-fi.com/img/githubbutton_sm.svg)](https://ko-fi.com/M4M1MI00I)
 
-`- Version: 1.0 -` 
+`- Version: 1.1-` 
 # Gestione valvole termostatiche TADO
 Progetto originariamente neto per la gestione delle riscaldamento con Netatmo e successivamente modificato per Tado.
 <img width="1148" alt="generale" src="https://github.com/Home-Assistant-Pro-Team/Gestione-valvole-TADO/assets/48358142/085b1c7c-2761-4e3e-97a7-48c3023011ac">
