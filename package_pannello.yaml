@@ -3,15 +3,16 @@
 ################################################
 utility_meter:
   meter_termostato_anno:
-    unique_id: durata_riscaldamento_generale_anno
+    unique_id: meter_termostato_anno
     source: sensor.durata_riscaldamento_generale
     cycle: yearly
+
   meter_termostato_mese:
-    unique_id: durata_riscaldamento_generale_mese
+    unique_id: meter_termostato_mese
     source: sensor.durata_riscaldamento_generale
     cycle: monthly
   meter_termostato_oggi:
-    unique_id: durata_riscaldamento_generale_oggi
+    unique_id: meter_termostato_oggi
     source: sensor.durata_riscaldamento_generale
     cycle: daily
 
@@ -53,11 +54,10 @@ template:
       - name: "Durata riscaldamento generale"
         unique_id: durata_riscaldamento_generale
         state: >-
-          {% if is_state('binary_sensor.riscaldamento_generale', 'on') %}
-            {% set delta = as_timestamp(now()) - as_timestamp(states.binary_sensor.riscaldamento_generale.last_changed) %}
-            {{ (delta // 3600)|int }}h {{ ((delta % 3600) // 60)|int }}m
+          {%if is_state('binary_sensor.riscaldamento_generale', 'on') and (as_timestamp(states.binary_sensor.riscaldamento_generale.last_changed)) <= as_timestamp(now())%}
+            {{((as_timestamp(now()) - as_timestamp(states.binary_sensor.riscaldamento_generale.last_changed))/3600) }}
           {% else %}
-            0h 0m
+            0
           {% endif %}
         attributes:
           Oggi: >
