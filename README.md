@@ -7,7 +7,8 @@ Grazie di cuore per il tuo sostegno!
 `- Version: 1.1-` 
 # Gestione valvole termostatiche TADO
 Progetto originariamente neto per la gestione delle riscaldamento con Netatmo e successivamente modificato per Tado.
-<img width="1148" alt="generale" src="https://github.com/Home-Assistant-Pro-Team/Gestione-valvole-TADO/assets/48358142/085b1c7c-2761-4e3e-97a7-48c3023011ac">
+<img width="914" height="412" alt="generale" src="https://github.com/user-attachments/assets/c1427f61-c5dd-4ff2-bdb0-94eedacd825d" />
+
 
 ![finestra_info](https://github.com/Home-Assistant-Pro-Team/Gestione-valvole-TADO/assets/48358142/0f75bd03-eee8-4a95-bdc7-f45f3239323a)
 ![ricambio_aria](https://github.com/Home-Assistant-Pro-Team/Gestione-valvole-TADO/assets/48358142/777fbdbb-c41a-4251-aec1-873dd2657cf9)
