@@ -3,31 +3,18 @@ button_card_templates:
     template: no_background
     styles:
       card:
-        - height: 0px
-        - padding: 0px
-        - border-bottom: 2px solid
-        - border-bottom-color: '#4a4a4a'
-        - margin-bottom: '[[[ return variables.margin_bottom + "px" ]]]'
-        - margin-top: '[[[ return variables.margin_top + "px" ]]]'
-    tap_action:
-      action: none
-  no_background:
-    styles:
-      card:
-        - background-color: rgba(0, 0, 0, 0.0)
-        - box-shadow: none
-        - border-radius: 0px
-        - border: 0px
-  card_valvole:
-    styles:
-      card:
         - height: 200px
       name:
         - padding-left: 70px
-        - padding-bottom: 600px
+        - align-self: flex-start
+        - margin-top: -10px
         - font-size: 24px
         - font-weight: 500
       custom_fields:
+        mold_indicator:
+          - position: absolute
+          - top: -2px
+          - left: 18px
         bg:
           - position: absolute
           - left: 1%
@@ -92,8 +79,9 @@ button_card_templates:
           - padding-top: 2px
           - padding-left: 1px
           - padding-right: 1px
-          - border-color: darkGray
-          - background-color: '#181818'
+          - border-color: "darkGray"
+          - background-color: "#181818"
+  
         temperatura_impostata:
           - position: absolute
           - left: 55px
@@ -117,7 +105,7 @@ button_card_templates:
                 else if (states['climate.valvola_' + variables.stanza].state == 'unavailable') return "DarkGray";
                 else return "gray";
               ]]]
-          - background-color: |
+          - background-color: >
               [[[
                 if (entity.state == 'auto') return "#181818";
                 else if (entity.state == 'unavailable') return "gray";
@@ -146,7 +134,7 @@ button_card_templates:
                 else if (states['climate.valvola_' + variables.stanza].state == 'unavailable') return "DarkGray";
                 else return "gray";
               ]]]
-          - background-color: |
+          - background-color: >
               [[[
                 if (entity.state == 'unavailable') return "gray";
                 else return "#181818";;
@@ -185,6 +173,7 @@ button_card_templates:
           - position: absolute
           - left: 220px
           - top: 12%
+  
         power:
           - position: absolute
           - left: 5px
@@ -217,14 +206,16 @@ button_card_templates:
           - position: absolute
           - left: 84%
           - top: 140px
+  
         finestra:
           - position: absolute
-          - top: '-5px'
+          - top: -5px
           - left: 400px
         ricircolo_aria:
           - position: absolute
           - top: 7px
           - left: 375px
+  
         impostazioni:
           - position: absolute
           - left: 6px
@@ -249,14 +240,58 @@ button_card_templates:
                   return "block";
                 return "none";
               ]]]
+  
     custom_fields:
-      bg: |
+      mold_indicator:
+        card:
+          type: custom:apexcharts-card
+          experimental:
+            color_threshold: true
+          chart_type: radialBar
+          series:
+            - entity: "[[[ return 'sensor.rischio_muffa_' + variables.stanza ]]]"
+              name: Rischio Muffa
+              max: 100
+              color_threshold:
+                - color: SeaGreen
+                  value: 0
+                - color: Orange
+                  value: 55
+                - color: Red
+                  value: 75
+  
+          apex_config:
+            legend:
+              show: false
+            plotOptions:
+              radialBar:
+                dataLabels:
+                  name:
+                    show: false
+                  value:
+                    show: false
+  
+          card_mod:
+            style: |
+              ha-card {
+                --ha-card-background: none;
+                border: 0px;
+                width: 150px;
+                height: 150px;
+                display: [[[
+                  const s = states['sensor.rischio_muffa_' + variables.stanza];
+                  if (!s || s.state === 'unavailable' || s.state === 'unknown') return "none";
+                  return "block";
+                ]]];
+              }
+      bg: >
         [[[ return " " ]]]
-      cerchio: |
+      cerchio: >
         [[[ return entity.attributes.current_temperature + '°' ]]]
-      temperatura_impostata_back: |
+      temperatura_impostata_back: >
         [[[ return '---' ]]]
-      temperatura_impostata: |
+  
+      temperatura_impostata: >
         [[[ return entity.attributes.temperature ]]]
       away:
         card:
@@ -265,13 +300,13 @@ button_card_templates:
           icon: mdi:home-export-outline
           show_name: true
           show_state: false
-          name: |
+          name: >
             [[[ return entity.attributes.temperature ]]]
       umidita:
         card:
           type: custom:button-card
           template: no_background
-          entity: '[[[return variables.umidita]]]'
+          entity: "[[[return variables.umidita]]]"
           layout: icon_state
           show_name: false
           show_state: true
@@ -298,6 +333,7 @@ button_card_templates:
                   ]]]
           tap_action:
             action: none
+  
       ospiti:
         card:
           type: custom:button-card
@@ -315,6 +351,7 @@ button_card_templates:
             icon:
               - color: DarkOrange
               - animation: blink 2000ms step-start infinite
+  
       turn_on:
         card:
           type: custom:button-card
@@ -329,6 +366,7 @@ button_card_templates:
               - background: none
             icon:
               - color: orange
+  
       graph:
         card:
           type: custom:apexcharts-card
@@ -357,7 +395,7 @@ button_card_templates:
           header:
             show: false
           series:
-            - entity: '[[[ return ''sensor.valvola_'' + variables.stanza + ''_trv'';  ]]]'
+            - entity: "[[[ return 'sensor.valvola_' + variables.stanza + '_trv';  ]]]"
               type: column
               color: Orange
               stroke_width: 3
@@ -365,7 +403,8 @@ button_card_templates:
               fill_raw: last
               group_by:
                 func: avg
-            - entity: '[[[ return variables.temperatura_ambinete ]]]'
+  
+            - entity: "[[[ return variables.temperatura_ambinete ]]]"
               color: OrangeRed
               yaxis_id: temperatura
               fill_raw: last
@@ -373,7 +412,8 @@ button_card_templates:
               stroke_width: 2
               opacity: 0.3
               curve: stepline
-            - entity: sensor.casa_temperatura_esterna
+  
+            - entity: "sensor.casa_temperatura_esterna"
               color: black
               fill_raw: last
               type: area
@@ -412,7 +452,8 @@ button_card_templates:
                   return 'climate.turn_off';
               ]]]
             target:
-              entity_id: '[[[ return ''climate.valvola_'' + variables.stanza ]]]'
+              entity_id: "[[[ return 'climate.valvola_' + variables.stanza ]]]"
+  
       minus:
         card:
           type: custom:button-card
@@ -430,7 +471,8 @@ button_card_templates:
             action: call-service
             service: script.temperatura_down
             service_data:
-              climate_id: '[[[ return ''climate.valvola_'' + variables.stanza ]]]'
+              climate_id: "[[[ return 'climate.valvola_' + variables.stanza ]]]"
+  
       plus:
         card:
           type: custom:button-card
@@ -448,12 +490,12 @@ button_card_templates:
             action: call-service
             service: script.temperatura_up
             service_data:
-              climate_id: '[[[ return ''climate.valvola_'' + variables.stanza ]]]'
+              climate_id: "[[[ return 'climate.valvola_' + variables.stanza ]]]"
       trv:
         card:
           type: custom:button-card
           template: no_background
-          label: |
+          label: >
             [[[
               if (states['sensor.' + variables.stanza + '_riscaldamento'].state < 1)return 'CHIUSA';
               else if (entity.state != 'unavailable') return 'TRV: '+ states['sensor.' + variables.stanza + '_riscaldamento'].state  + '%';
@@ -469,9 +511,7 @@ button_card_templates:
         card:
           type: custom:button-card
           template: no_background
-          entity: >-
-            [[[return 'binary_sensor.valvola_' + variables.stanza +
-            '_batteria']]]
+          entity: "[[[return 'binary_sensor.valvola_' + variables.stanza + '_batteria']]]"
           layout: icon_state
           show_name: false
           show_state: true
@@ -503,6 +543,7 @@ button_card_templates:
               - border-radius: 15%
           tap_action:
             action: none
+  
       divider:
         card:
           type: custom:button-card
@@ -515,14 +556,14 @@ button_card_templates:
               - width: 255px
               - border-top: 2px solid
               - border-color: '#4a4a4a'
+  
       mensile:
         card:
-          type: custom:button-card
+          type: custom:button-card #Mensile
           template: no_background
           label: >
-            [[[ return states['sensor.tempo_valvola_' +
-            variables.stanza].attributes.Mese ]]]
-          name: MENSILE
+            [[[ return states['sensor.tempo_valvola_' + variables.stanza].attributes.Mese ]]]
+          name: "MENSILE"
           show_label: true
           show_name: true
           styles:
@@ -540,12 +581,11 @@ button_card_templates:
             action: none
       annuale:
         card:
-          type: custom:button-card
+          type: custom:button-card #Annuale
           template: no_background
           label: >
-            [[[ return states['sensor.tempo_valvola_' +
-            variables.stanza].attributes.Anno ]]]
-          name: ' ANNUALE'
+            [[[ return states['sensor.tempo_valvola_' + variables.stanza].attributes.Anno ]]]
+          name: " ANNUALE"
           show_label: true
           show_name: true
           styles:
@@ -563,12 +603,11 @@ button_card_templates:
             action: none
       oggi:
         card:
-          type: custom:button-card
+          type: custom:button-card # Oggi
           template: no_background
           label: >
-            [[[ return states['sensor.tempo_valvola_' +
-            variables.stanza].attributes.Oggi ]]]
-          name: ' OGGI '
+            [[[ return states['sensor.tempo_valvola_' + variables.stanza].attributes.Oggi ]]]
+          name: " OGGI "
           show_label: true
           show_name: true
           styles:
@@ -584,27 +623,28 @@ button_card_templates:
               - padding-bottom: 5px
           tap_action:
             action: none
+  
       finestra:
         card:
           type: custom:button-card
           layout: icon_name_state
           template: no_background
-          entity: '[[[ return variables.contatto_finestra ]]]'
+          entity: "[[[ return variables.contatto_finestra ]]]"
           icon: mdi:window-open-variant
           size: 60%
           show_name: true
           show_state: false
           show_icon: true
-          name: |
+          name: >
             [[[
               if (states[variables.contatto_finestra].state  == 'on')
                 return '<span style="font-size: 11px; font-weight: 500">Aperta da</span>' + '<br/>' + states['sensor.last_change_finestra_' + variables.stanza].state;
               else return 'Chiusa';
             ]]]
           state:
-            - value: 'off'
+            - value: "off"
               color: OliveDrab
-            - value: 'on'
+            - value: "on"
               color: ORANGERed
           styles:
             card:
@@ -633,15 +673,11 @@ button_card_templates:
                     - type: entities
                       show_header_toggle: false
                       entities:
-                        - entity: >-
-                            [[[ return 'sensor.last_change_finestra_' +
-                            variables.stanza + '_info' ]]]
+                        - entity: "[[[ return 'sensor.last_change_finestra_' + variables.stanza + '_info' ]]]"
                           name: Ultima apertura
                           secondary_info: last-changed
                           icon: mdi:door-sliding-lock
-                        - entity: >-
-                            [[[ return 'counter.finestra_' + variables.stanza
-                            ]]]
+                        - entity: "[[[ return 'counter.finestra_' + variables.stanza ]]]"
                           name: Numero di aperture oggi
                       style: |
                         ha-card {
@@ -652,7 +688,7 @@ button_card_templates:
           type: custom:button-card
           layout: icon_name_state
           template: no_background
-          entity: '[[[ return ''sensor.ricircolo_aria_'' + variables.stanza ]]]'
+          entity: "[[[ return 'sensor.ricircolo_aria_' + variables.stanza ]]]"
           show_name: false
           size: 100%
           styles:
@@ -662,16 +698,16 @@ button_card_templates:
               - height: 25px
               - width: 25px
           state:
-            - value: unavailable
+            - value: 'unavailable'
               color: gray
-              icon: mdi:dots-horizontal
-            - value: Ok
+              icon: 'mdi:dots-horizontal'
+            - value: 'Ok'
               color: LightGray
-            - value: Medio
+            - value: 'Medio'
               color: DarkOrange
-            - value: Grave
+            - value: 'Grave'
               color: Orchid
-            - value: Urgente
+            - value: 'Urgente'
               color: red
               styles:
                 icon:
@@ -694,21 +730,18 @@ button_card_templates:
                     - type: entities
                       show_header_toggle: false
                       entities:
-                        - entity: >-
-                            [[[ return 'sensor.ricircolo_aria_' +
-                            variables.stanza ]]]
+                        - entity:  "[[[ return 'sensor.ricircolo_aria_' + variables.stanza ]]]"
                           name: Bisogno di ricambio aria
                           icon: mdi:air-filter
                         - type: attribute
-                          entity: >-
-                            [[[ return 'sensor.ricircolo_aria_' +
-                            variables.stanza ]]]
+                          entity:  "[[[ return 'sensor.ricircolo_aria_' + variables.stanza ]]]"
                           attribute: tempo
                           name: Tempo passato dall'ultimo ricambio
                       style: |
                         ha-card {
                         border: 0px;
                         }
+  
       impostazioni:
         card:
           type: custom:button-card
@@ -741,65 +774,46 @@ button_card_templates:
                     - type: entities
                       show_header_toggle: false
                       entities:
-                        - entity: >-
-                            [[[ return 'automation.valvola_' + variables.stanza
-                            + '_gestione_finestra';  ]]]
+                        - entity: "[[[ return 'automation.valvola_' + variables.stanza + '_gestione_finestra';  ]]]"
                           icon: mdi:window-open-variant
                           name: Gestione Finestra
-                        - entity: >-
-                            [[[ return
-                            'automation.avviso_ricambio_aria_valvola_' +
-                            variables.stanza;  ]]]
+  
+                        - entity: "[[[ return 'automation.avviso_ricambio_aria_valvola_' + variables.stanza;  ]]]"
                           icon: mdi:message-badge
                           name: Notifica finestra aperta
-                        - entity: >-
-                            [[[ return 'input_number.valvola_' +
-                            variables.stanza +
-                            '_ritardo_notifica_finestra_aperta' ]]]
-                          name: Notifica finestra aperta dopo
-                        - entity: >-
-                            [[[ return 'input_number.valvola_' +
-                            variables.stanza +
-                            '_ritardo_controllo_finestra_aperta' ]]]
-                          name: Chiusura valvola dopo
-                        - type: custom:button-card
+  
+                        - entity: "[[[ return 'input_number.valvola_' + variables.stanza + '_ritardo_notifica_finestra_aperta' ]]]"
+  
+                          name: "Notifica finestra aperta dopo"
+                        - entity: "[[[ return 'input_number.valvola_' + variables.stanza + '_ritardo_controllo_finestra_aperta' ]]]"
+                          name: "Chiusura valvola dopo"
+                        - type: "custom:button-card"
                           template: border-bottom
                           variables:
                             margin_bottom: 0
                             margin_top: 0
-                        - entity: >-
-                            [[[ return 'input_boolean.valvola_' +
-                            variables.stanza +
-                            '_notifica_vocale_finestra_aperta' ]]]
-                          name: Avviso vocale finestra lasciata aperta
-                        - entity: >-
-                            [[[ return 'input_number.valvola_' +
-                            variables.stanza +
-                            '_avviso_finestra_lasciata_aperta']]]
-                          name: Avviso finestra lasciata aperta dopo
-                        - type: custom:button-card
+  
+                        - entity: "[[[ return 'input_boolean.valvola_' + variables.stanza + '_notifica_vocale_finestra_aperta' ]]]"
+                          name: "Avviso vocale finestra lasciata aperta"
+                        - entity: "[[[ return 'input_number.valvola_' + variables.stanza + '_avviso_finestra_lasciata_aperta']]]"
+                          name: "Avviso finestra lasciata aperta dopo"
+  
+                        - type: "custom:button-card"
                           template: border-bottom
                           variables:
                             margin_bottom: 0
                             margin_top: 0
-                        - entity: >-
-                            [[[ return 'input_boolean.valvola_' +
-                            variables.stanza + '_notifica_true_temperature']]]
+                        - entity: "[[[ return 'input_boolean.valvola_' + variables.stanza + '_notifica_true_temperature']]]"
                           name: Avviso limite TrueTemperature
-                        - type: custom:button-card
+  
+                        - type: "custom:button-card"
                           template: border-bottom
                           variables:
                             margin_bottom: 0
                             margin_top: 0
-                        - entity: >-
-                            [[[ return
-                            'automation.avviso_disconnessione_valvola_' +
-                            variables.stanza; ]]]
+                        - entity: "[[[ return 'automation.avviso_disconnessione_valvola_' + variables.stanza; ]]]"
                           icon: mdi:connection
-                        - entity: >-
-                            [[[
-                            return'automation.notifica_batteria_scarica_valvola_'
-                            + variables.stanza; ]]]
+                        - entity: "[[[ return'automation.notifica_batteria_scarica_valvola_' + variables.stanza; ]]]"
                           icon: mdi:battery-alert-variant-outline
                       style: |
                         ha-card {
