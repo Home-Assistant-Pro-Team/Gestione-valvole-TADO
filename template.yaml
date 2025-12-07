@@ -11,8 +11,8 @@ card_valvole:
     custom_fields:
       mold_indicator:
         - position: absolute
-        - top: -2px
-        - left: 18px
+        - top: -6px
+        - left: 14px
       bg:
         - position: absolute
         - left: 1%
@@ -86,7 +86,7 @@ card_valvole:
         - top: 2%
         - height: 70px
         - width: 70px
-        - font-size: 25px
+        - font-size: 18px
         - font-weight: bold
         - line-height: 60px
         - border-top-left-radius: 20%
@@ -274,8 +274,8 @@ card_valvole:
             ha-card {
               --ha-card-background: none;
               border: 0px;
-              width: 150px;
-              height: 150px;
+              width: 160px;
+              height: 160px;
               display: [[[
                 const s = states['sensor.rischio_muffa_' + variables.stanza];
                 if (!s || s.state === 'unavailable' || s.state === 'unknown') return "none";
