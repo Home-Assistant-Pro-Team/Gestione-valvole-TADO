@@ -1,34 +1,18 @@
-border-bottom:
-  template: no_background
-  styles:
-    card:
-      - height: 0px
-      - padding: 0px
-      - border-bottom: 2px solid
-      - border-bottom-color: "#4a4a4a"
-      - margin-bottom: '[[[ return variables.margin_bottom + "px" ]]]'
-      - margin-top: '[[[ return variables.margin_top + "px" ]]]'
-  tap_action:
-    action: none
-    
-no_background:
-  styles:
-    card:
-      - background-color: "rgba(0, 0, 0, 0.0)"
-      - box-shadow: none
-      - border-radius: 0px
-      - border: 0px
-
 card_valvole:
   styles:
     card:
       - height: 200px
     name:
       - padding-left: 70px
-      - padding-bottom: 600px
+      - align-self: flex-start
+      - margin-top: -10px
       - font-size: 24px
       - font-weight: 500
     custom_fields:
+      mold_indicator:
+        - position: absolute
+        - top: -2px
+        - left: 18px
       bg:
         - position: absolute
         - left: 1%
@@ -229,6 +213,7 @@ card_valvole:
         - position: absolute
         - top: 7px
         - left: 375px
+
       impostazioni:
         - position: absolute
         - left: 6px
@@ -255,9 +240,50 @@ card_valvole:
             ]]]
 
   custom_fields:
+    mold_indicator:
+      card:
+        type: custom:apexcharts-card
+        experimental:
+          color_threshold: true
+        chart_type: radialBar
+        series:
+          - entity: "[[[ return 'sensor.rischio_muffa_' + variables.stanza ]]]"
+            name: Rischio Muffa
+            max: 100
+            color_threshold:
+              - color: SeaGreen
+                value: 0
+              - color: Orange
+                value: 55
+              - color: Red
+                value: 75
+
+        apex_config:
+          legend:
+            show: false
+          plotOptions:
+            radialBar:
+              dataLabels:
+                name:
+                  show: false
+                value:
+                  show: false
+
+        card_mod:
+          style: |
+            ha-card {
+              --ha-card-background: none;
+              border: 0px;
+              width: 150px;
+              height: 150px;
+              display: [[[
+                const s = states['sensor.rischio_muffa_' + variables.stanza];
+                if (!s || s.state === 'unavailable' || s.state === 'unknown') return "none";
+                return "block";
+              ]]];
+            }
     bg: >
       [[[ return " " ]]]
-
     cerchio: >
       [[[ return entity.attributes.current_temperature + '°' ]]]
     temperatura_impostata_back: >
@@ -274,7 +300,6 @@ card_valvole:
         show_state: false
         name: >
           [[[ return entity.attributes.temperature ]]]
-#          [[[ return states['climate.valvola_' + variables.stanza + '_homekit'].attributes.temperature ]]]
     umidita:
       card:
         type: custom:button-card
@@ -402,7 +427,6 @@ card_valvole:
     power:
       card:
         type: custom:button-card
-        color: rgb(223, 255, 97)
         icon: mdi:power
         size: 100%
         color: |
@@ -715,6 +739,7 @@ card_valvole:
                       ha-card {
                       border: 0px;
                       }
+
     impostazioni:
       card:
         type: custom:button-card
