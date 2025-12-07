@@ -1,0 +1,22 @@
+# L'utilizzo del sensore e come calcolarlo è ben documentato della doc ufficiale di home assistant
+# https://www.home-assistant.io/integrations/mold_indicator/
+
+################################################################################
+##                  Recorder
+################################################
+recorder:
+  include:
+    entities:
+      - sensor.rischio_muffa_studio
+
+sensor:
+  ################################################################################
+  ##                  MOLD INDICATOR
+  ################################################
+  - platform: mold_indicator
+    name: Rischio Muffa Studio
+    indoor_temp_sensor: sensor.temperatura_studio
+    indoor_humidity_sensor: sensor.umidita_studio
+    outdoor_temp_sensor: sensor.casa_temperatura_esterna # sensore Tado
+    calibration_factor: 1.13
+    unique_id: mold_studio
