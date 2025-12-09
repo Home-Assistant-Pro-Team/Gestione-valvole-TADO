@@ -3,6 +3,25 @@ button_card_templates:
     template: no_background
     styles:
       card:
+        - height: 0px
+        - padding: 0px
+        - border-bottom: 2px solid
+        - border-bottom-color: '#4a4a4a'
+        - margin-bottom: '[[[ return variables.margin_bottom + "px" ]]]'
+        - margin-top: '[[[ return variables.margin_top + "px" ]]]'
+    tap_action:
+      action: none
+  no_background:
+    styles:
+      card:
+        - background-color: rgba(0, 0, 0, 0.0)
+        - box-shadow: none
+        - border-radius: 0px
+        - border: 0px
+
+  card_valvole:
+    styles:
+      card:
         - height: 200px
       name:
         - padding-left: 70px
@@ -68,7 +87,7 @@ button_card_templates:
           - top: 2%
           - height: 70px
           - width: 70px
-          - font-size: 18px
+          - font-size: 25px
           - font-weight: bold
           - line-height: 60px
           - border-top-left-radius: 20%
@@ -88,7 +107,7 @@ button_card_templates:
           - top: 2%
           - height: 70px
           - width: 70px
-          - font-size: 25px
+          - font-size: 18px
           - font-weight: bold
           - line-height: 60px
           - border-top-left-radius: 20%
