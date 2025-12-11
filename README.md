@@ -4,10 +4,10 @@ I fondi raccolti saranno utilizzati per acquistare nuovo materiale e realizzare 
 Grazie di cuore per il tuo sostegno!
 [![ko-fi](https://ko-fi.com/img/githubbutton_sm.svg)](https://ko-fi.com/M4M1MI00I)
 
-`- Version: 1.1-` 
+`- Version: 1.3-` 
 # Gestione valvole termostatiche TADO
 Progetto originariamente neto per la gestione delle riscaldamento con Netatmo e successivamente modificato per Tado.
-<img width="914" height="412" alt="generale" src="https://github.com/user-attachments/assets/c1427f61-c5dd-4ff2-bdb0-94eedacd825d" />
+<img width="1001" height="418" alt="image" src="https://github.com/user-attachments/assets/115807b1-08bd-4ea9-8353-fd345837ff69" />
 
 
 ![finestra_info](https://github.com/Home-Assistant-Pro-Team/Gestione-valvole-TADO/assets/48358142/0f75bd03-eee8-4a95-bdc7-f45f3239323a)
@@ -21,7 +21,8 @@ Progetto originariamente neto per la gestione delle riscaldamento con Netatmo e 
 - Gruppo famiglia esistente
 - Browser_mod
 - Il servizo di notifiche è affidato al fantastico Multinotify di Henrik vi consiglio di leggere questo articolo https://henriksozzi.it/2022/01/package-multinotify-notifiche-su-alexa-e-app/ oppure di sostituire le notifiche con un vostro servizio
-- custom:apexcharts-card
+- Custom apexcharts-card
+- Custom bar-card
 - Custom Button Card installato con la gestione dei template. Doc di come fare qui: https://github.com/custom-cards/button-card#configuration-templates
 in Generale, basterebbe creare nella root principale la cartella "buttom_templates" dove metterci all'interno il file template.yaml e mettere questa srtinga all'inizio del file lovelace button_card_templates: !include_dir_merge_named buttom_templates/
 - Gestione dei packages in HA. Doc ufficiale https://www.home-assistant.io/docs/configuration/packages/
@@ -125,7 +126,11 @@ nel file di esempio le finestre considerate sono 5, potete modificare le quantit
               Nessuna
             {%- endif -%}
 
+`- Version: 1.3 -` 
 
+- Aggiunto Mold Indicator - Indicatore di richio muffa
+  ** é necassario l'installazione del componente custom bar-card
+  
 ### **Supportaci**
 Se apprezzi questo progetto, ci piacerebbe avere il tuo supporto, anche con un semplice caffè. 
 I fondi raccolti saranno utilizzati per acquistare nuovo materiale e realizzare nuovi progetti. Puoi contribuire cliccando sul pulsante qui sotto. 
