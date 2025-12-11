@@ -26,14 +26,16 @@ button_card_templates:
       name:
         - padding-left: 70px
         - align-self: flex-start
-        - margin-top: -10px
+        - margin-top: -17px
         - font-size: 24px
         - font-weight: 500
       custom_fields:
         mold_indicator:
           - position: absolute
-          - top: -6px
-          - left: 14px
+          - top: 22px
+          - left: 390px
+  #        - top: 170px
+  #        - left: -48px
         bg:
           - position: absolute
           - left: 1%
@@ -176,7 +178,7 @@ button_card_templates:
               ]]]
         umidita:
           - position: absolute
-          - left: 54px
+          - left: 45px
           - top: 127px
         turn_on:
           - position: absolute
@@ -207,7 +209,7 @@ button_card_templates:
           - top: 27%
         trv:
           - position: absolute
-          - top: 182px
+          - top: 54px
           - left: 71px
         divider:
           - position: absolute
@@ -263,21 +265,47 @@ button_card_templates:
     custom_fields:
       mold_indicator:
         card:
-          type: custom:apexcharts-card
-          experimental:
-            color_threshold: true
-          chart_type: radialBar
-          series:
+          type: custom:bar-card
+          direction: up
+          name: ' '
+          height: 100px
+          width: 10%
+          positions:
+            icon: 'off'
+            indicator: off
+            value: off
+          severity:
+            - color: rgba(5, 160, 64, 1)0"
+              from: 0
+              to: 30
+            - color: "#ffe042ff"
+              from: 31
+              to: 60
+            - color: "#ff9d00ff"
+              from: 61
+              to: 74
+            - color: "#da0e0eff"
+              from: 75
+              to: 100
+          entities:
             - entity: "[[[ return 'sensor.rischio_muffa_' + variables.stanza ]]]"
-              name: Rischio Muffa
-              max: 100
-              color_threshold:
-                - color: SeaGreen
-                  value: 0
-                - color: Orange
-                  value: 55
-                - color: Red
-                  value: 75
+  
+  
+          # type: custom:apexcharts-card
+          # experimental:
+          #   color_threshold: true
+          # chart_type: radialBar
+          # series:
+          #   - entity: "[[[ return 'sensor.rischio_muffa_' + variables.stanza ]]]"
+          #     name: Rischio Muffa
+          #     max: 100
+          #     color_threshold:
+          #       - color: SeaGreen
+          #         value: 0
+          #       - color: Orange
+          #         value: 55
+          #       - color: Red
+          #         value: 75
   
           apex_config:
             legend:
@@ -333,7 +361,7 @@ button_card_templates:
           styles:
             card:
               - height: 24px
-              - width: 73px
+              - width: 75px
               - font-size: 14px
             state:
               - color: |
