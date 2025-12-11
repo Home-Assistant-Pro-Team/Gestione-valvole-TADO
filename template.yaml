@@ -13,8 +13,6 @@ card_valvole:
         - position: absolute
         - top: 22px
         - left: 390px
-#        - top: 170px
-#        - left: -48px
       bg:
         - position: absolute
         - left: 1%
@@ -188,7 +186,7 @@ card_valvole:
         - top: 27%
       trv:
         - position: absolute
-        - top: 54px
+        - top: 182px
         - left: 71px
       divider:
         - position: absolute
@@ -269,47 +267,6 @@ card_valvole:
         entities:
           - entity: "[[[ return 'sensor.rischio_muffa_' + variables.stanza ]]]"
 
-
-        # type: custom:apexcharts-card
-        # experimental:
-        #   color_threshold: true
-        # chart_type: radialBar
-        # series:
-        #   - entity: "[[[ return 'sensor.rischio_muffa_' + variables.stanza ]]]"
-        #     name: Rischio Muffa
-        #     max: 100
-        #     color_threshold:
-        #       - color: SeaGreen
-        #         value: 0
-        #       - color: Orange
-        #         value: 55
-        #       - color: Red
-        #         value: 75
-
-        apex_config:
-          legend:
-            show: false
-          plotOptions:
-            radialBar:
-              dataLabels:
-                name:
-                  show: false
-                value:
-                  show: false
-
-        card_mod:
-          style: |
-            ha-card {
-              --ha-card-background: none;
-              border: 0px;
-              width: 160px;
-              height: 160px;
-              display: [[[
-                const s = states['sensor.rischio_muffa_' + variables.stanza];
-                if (!s || s.state === 'unavailable' || s.state === 'unknown') return "none";
-                return "block";
-              ]]];
-            }
     bg: >
       [[[ return " " ]]]
     cerchio: >
